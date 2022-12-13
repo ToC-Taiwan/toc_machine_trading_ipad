@@ -11,7 +11,10 @@ dependencies:
   elegant_notification: ^1.6.4
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   google_fonts: ^3.0.1
+  intl: ^0.17.0
   numberpicker: ^2.1.1
   percent_indicator: ^4.2.2
   protobuf: ^2.1.0
@@ -33,6 +36,7 @@ flutter_icons:
   image_path: "assets/app_icon.png"
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - pubspec.yaml

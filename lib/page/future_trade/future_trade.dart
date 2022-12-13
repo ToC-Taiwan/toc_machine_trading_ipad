@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:date_format/date_format.dart' as df;
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -326,14 +327,14 @@ class _FutureTradePageState extends State<FutureTradePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: const Text('settings'),
+        title: Text(AppLocalizations.of(context)!.settings),
         content: StatefulBuilder(
           builder: (context, setState) => SizedBox(
             height: 300,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const Text('earn'),
+                Text(AppLocalizations.of(context)!.earn),
                 NumberPicker(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.teal),
@@ -352,7 +353,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                     });
                   },
                 ),
-                const Text('loss'),
+                Text(AppLocalizations.of(context)!.loss),
                 NumberPicker(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.teal),
@@ -378,9 +379,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
         actions: [
           Center(
             child: ElevatedButton(
-              child: const Text(
-                'ok',
-                style: TextStyle(color: Colors.black),
+              child: Text(
+                AppLocalizations.of(context)!.ok,
+                style: const TextStyle(color: Colors.black),
               ),
               onPressed: () {
                 setState(() {
@@ -407,7 +408,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: const Text('settings'),
+        title: Text(AppLocalizations.of(context)!.settings),
         content: StatefulBuilder(
           builder: (context, setState) => NumberPicker(
             decoration: BoxDecoration(
@@ -432,9 +433,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
         actions: [
           Center(
             child: ElevatedButton(
-              child: const Text(
-                'ok',
-                style: TextStyle(color: Colors.black),
+              child: Text(
+                AppLocalizations.of(context)!.ok,
+                style: const TextStyle(color: Colors.black),
               ),
               onPressed: () {
                 setState(() {
@@ -557,7 +558,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   ),
                                 );
                               } else {
-                                return const Text('loading');
+                                return Text(AppLocalizations.of(context)!.loading);
                               }
                             },
                           ),
@@ -608,10 +609,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                         ],
                                       );
                                     }
-                                    return const Center(
+                                    return Center(
                                       child: Text(
-                                        'loading...',
-                                        style: TextStyle(fontSize: 20),
+                                        AppLocalizations.of(context)!.loading,
+                                        style: const TextStyle(fontSize: 20),
                                       ),
                                     );
                                   },
@@ -624,13 +625,13 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     if (snapshot.hasData) {
                                       if (snapshot.data!.direction == 'Buy') {
                                         return Text(
-                                          'buy: ${snapshot.data!.quantity}\navg}: ${snapshot.data!.price}',
+                                          '${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
                                           style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
                                         );
                                       }
                                       if (snapshot.data!.direction == 'Sell') {
                                         return Text(
-                                          'sell: ${snapshot.data!.quantity}\navg}: ${snapshot.data!.price}',
+                                          '${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
                                           style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
                                         );
                                       }
@@ -743,7 +744,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   height: 50,
                                   child: Center(
                                     child: Text(
-                                      !isAssiting ? 'buy' : 'assisting',
+                                      !isAssiting ? AppLocalizations.of(context)!.buy : AppLocalizations.of(context)!.assisting,
                                       style: const TextStyle(
                                         fontSize: 26,
                                         color: Colors.white,
@@ -772,7 +773,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   height: 50,
                                   child: Center(
                                     child: Text(
-                                      !isAssiting ? 'sell' : 'assisting',
+                                      !isAssiting ? AppLocalizations.of(context)!.sell : AppLocalizations.of(context)!.assisting,
                                       style: const TextStyle(
                                         fontSize: 26,
                                         color: Colors.white,

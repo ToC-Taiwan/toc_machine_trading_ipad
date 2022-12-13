@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TargetsPage extends StatefulWidget {
   const TargetsPage({super.key});
@@ -9,7 +10,7 @@ class TargetsPage extends StatefulWidget {
 
 class _TargetsPageState extends State<TargetsPage> {
   @override
-  Widget build(BuildContext context) => const Center(
-        child: Text('Targets'),
+  Widget build(BuildContext context) => Center(
+        child: Text(AppLocalizations.of(context)!.targets),
       );
 }
