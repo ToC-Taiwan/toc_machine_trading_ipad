@@ -9,7 +9,7 @@ class RebornPage extends StatefulWidget {
 
 class _RebornPageState extends State<RebornPage> {
   @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
+  Widget build(BuildContext context) => const Center(
+        child: Text('Reborn'),
+      );
 }

@@ -9,7 +9,7 @@ class TargetsPage extends StatefulWidget {
 
 class _TargetsPageState extends State<TargetsPage> {
   @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
+  Widget build(BuildContext context) => const Center(
+        child: Text('Targets'),
+      );
 }

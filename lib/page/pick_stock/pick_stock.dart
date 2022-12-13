@@ -9,7 +9,7 @@ class PickStockPage extends StatefulWidget {
 
 class _PickStockPageState extends State<PickStockPage> {
   @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
+  Widget build(BuildContext context) => const Center(
+        child: Text('Pick Stock'),
+      );
 }

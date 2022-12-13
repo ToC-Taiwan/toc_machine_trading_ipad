@@ -26,18 +26,19 @@ class _IntroState extends State<Intro> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.teal[50],
-      child: Center(
-        child: Text('ToC Machine Trading',
+  Widget build(BuildContext context) => Material(
+        color: Colors.teal[300],
+        child: Center(
+          child: Text(
+            'ToC Machine Trading',
             style: GoogleFonts.getFont(
               'Source Code Pro',
               fontStyle: FontStyle.normal,
               fontSize: 55,
               fontWeight: FontWeight.bold,
-            )),
-      ),
-    );
-  }
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
 }
