@@ -15,14 +15,14 @@ import 'app.pbenum.dart';
 export 'app.pbenum.dart';
 
 enum WSMessage_Data {
-  futureTick, 
-  futureOrder, 
-  tradeIndex, 
-  futurePosition, 
-  assitStatus, 
-  errMessage, 
-  historyKbar, 
-  futureDetail, 
+  futureTick,
+  futureOrder,
+  tradeIndex,
+  futurePosition,
+  assitStatus,
+  errMessage,
+  historyKbar,
+  futureDetail,
   notSet
 }
 
@@ -1505,4 +1505,3 @@ class Kbar extends $pb.GeneratedMessage {
   @$pb.TagNumber(6)
   void clearVolume() => clearField(6);
 }
-

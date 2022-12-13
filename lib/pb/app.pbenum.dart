@@ -35,4 +35,3 @@ class WSType extends $pb.ProtobufEnum {
 
   const WSType._($core.int v, $core.String n) : super(v, n);
 }
-

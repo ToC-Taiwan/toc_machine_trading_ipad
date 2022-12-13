@@ -1,4 +1,4 @@
-# toc_machine_trading_ipad
+# TOC MACHINE TRADING IPAD
 
 App for ToC Machine Trading
 
