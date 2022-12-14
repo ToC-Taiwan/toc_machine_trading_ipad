@@ -87,5 +87,9 @@
   "earn": "Earn",
   "loss": "Loss",
   "assisting": "Assist",
-  "kbar_is_loading": "KBar is loading"
+  "kbar_is_loading": "KBar is loading",
+  "unknown_error": "Unknown error",
+  "menu": "Menu",
+  "auto": "Auto",
+  "stop": "Stop"
 }

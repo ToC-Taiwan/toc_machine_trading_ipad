@@ -29,8 +29,8 @@ class _FutureTradePageState extends State<FutureTradePage> {
   String code = '';
   String delieveryDate = '';
 
-  bool allowTrade = true;
   bool isAssiting = false;
+  bool automaticMode = false;
   bool automationByTimer = false;
   bool automationByBalance = false;
 
@@ -194,7 +194,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
       fourthPeriod.arr.add(totalTickArr[i]);
     }
 
-    if (!isAssiting && !allowTrade && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
+    if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
       if (tradeRate.rate > 25 && lastRate < 10) {
         if (tradeRate.percent1 > 85) {
           _buyFuture(code, lastTick!.close!);
@@ -512,88 +512,45 @@ class _FutureTradePageState extends State<FutureTradePage> {
                   children: [
                     Expanded(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FutureBuilder<RealTimeFutureTick?>(
-                            future: realTimeFutureTick,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final type = (snapshot.data!.priceChg! == 0)
-                                    ? ''
-                                    : (snapshot.data!.priceChg! > 0)
-                                        ? '↗️'
-                                        : '↘️';
-                                return SizedBox(
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          snapshot.data!.close!.toStringAsFixed(0),
-                                          style: GoogleFonts.getFont(
-                                            'Source Code Pro',
-                                            fontStyle: FontStyle.normal,
-                                            fontSize: 50,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          '$type ${snapshot.data!.priceChg!.toStringAsFixed(0)}',
-                                          style: GoogleFonts.getFont(
-                                            'Source Code Pro',
-                                            fontStyle: FontStyle.normal,
-                                            fontSize: 50,
-                                            color: snapshot.data!.priceChg! == 0
-                                                ? Colors.blueGrey
-                                                : snapshot.data!.priceChg! > 0
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return Text(AppLocalizations.of(context)!.loading);
-                              }
-                            },
-                          ),
-                          SizedBox(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: Row(
-                                      children: [
-                                        buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    '${tradeRate.rate.toStringAsFixed(2)}/s',
-                                    style: GoogleFonts.getFont(
-                                      'Source Code Pro',
-                                      fontStyle: FontStyle.normal,
-                                      fontSize: 35,
-                                      color: tradeRate.rate >= 10 ? Colors.red : Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                           Row(
                             children: [
+                              Expanded(
+                                flex: 3,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: FutureBuilder<FuturePosition?>(
+                                    future: futurePosition,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        if (snapshot.data!.direction == 'Buy') {
+                                          return Text(
+                                            '$code\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
+                                            style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
+                                          );
+                                        }
+                                        if (snapshot.data!.direction == 'Sell') {
+                                          return Text(
+                                            '$code\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
+                                            style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
+                                          );
+                                        }
+                                      }
+                                      return Text(
+                                        '$code\n$delieveryDate',
+                                        style: GoogleFonts.getFont(
+                                          'Source Code Pro',
+                                          fontStyle: FontStyle.normal,
+                                          fontSize: 40,
+                                          color: Colors.blueGrey,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
                               Expanded(
                                 flex: 2,
                                 child: FutureBuilder<TradeIndex?>(
@@ -618,32 +575,73 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   },
                                 ),
                               ),
-                              Expanded(
-                                child: FutureBuilder<FuturePosition?>(
-                                  future: futurePosition,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      if (snapshot.data!.direction == 'Buy') {
-                                        return Text(
-                                          '${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
-                                          style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
-                                        );
-                                      }
-                                      if (snapshot.data!.direction == 'Sell') {
-                                        return Text(
-                                          '${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
-                                          style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
-                                        );
-                                      }
-                                    }
-                                    return Text(
-                                      delieveryDate,
-                                      style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
-                                    );
-                                  },
-                                ),
-                              )
                             ],
+                          ),
+                          FutureBuilder<RealTimeFutureTick?>(
+                            future: realTimeFutureTick,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final type = (snapshot.data!.priceChg! == 0)
+                                    ? ''
+                                    : (snapshot.data!.priceChg! > 0)
+                                        ? '↗️'
+                                        : '↘️';
+                                return SizedBox(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Text(
+                                            snapshot.data!.close!.toStringAsFixed(0),
+                                            style: GoogleFonts.getFont(
+                                              'Source Code Pro',
+                                              fontStyle: FontStyle.normal,
+                                              fontSize: 50,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            '$type ${snapshot.data!.priceChg!.toStringAsFixed(0)}',
+                                            style: GoogleFonts.getFont(
+                                              'Source Code Pro',
+                                              fontStyle: FontStyle.normal,
+                                              fontSize: 50,
+                                              color: snapshot.data!.priceChg! == 0
+                                                  ? Colors.blueGrey
+                                                  : snapshot.data!.priceChg! > 0
+                                                      ? Colors.red
+                                                      : Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        '${tradeRate.rate.toStringAsFixed(2)}/s',
+                                        style: GoogleFonts.getFont(
+                                          'Source Code Pro',
+                                          fontStyle: FontStyle.normal,
+                                          fontSize: 35,
+                                          color: tradeRate.rate < 10
+                                              ? Colors.grey
+                                              : tradeRate.percent1 > 50
+                                                  ? Colors.red
+                                                  : Colors.green,
+                                        ),
+                                      ),
+                                      buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
+                                      buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
+                                      buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
+                                      buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return Text(AppLocalizations.of(context)!.loading);
+                              }
+                            },
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -660,7 +658,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                 child: SizedBox(
                                   width: 40,
                                   height: 40,
-                                  child: Icon(Icons.monetization_on, color: automationByBalance ? Colors.blueAccent : Colors.grey),
+                                  child: Icon(
+                                    Icons.monetization_on,
+                                    color: automationByBalance ? Colors.blueAccent : Colors.grey,
+                                    size: 40,
+                                  ),
                                 ),
                               ),
                               InkWell(
@@ -675,7 +677,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                 child: SizedBox(
                                   width: 40,
                                   height: 40,
-                                  child: Icon(Icons.timer, color: automationByTimer ? Colors.blueAccent : Colors.grey),
+                                  child: Icon(
+                                    Icons.timer,
+                                    color: automationByTimer ? Colors.blueAccent : Colors.grey,
+                                    size: 40,
+                                  ),
                                 ),
                               ),
                               ElevatedButton(
@@ -701,7 +707,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                 style: GoogleFonts.getFont(
                                   'Source Code Pro',
                                   fontStyle: FontStyle.normal,
-                                  fontSize: 23,
+                                  fontSize: 30,
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -731,17 +737,46 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  elevation: (allowTrade && !isAssiting) ? MaterialStateProperty.all(10) : MaterialStateProperty.all(0),
+                                  elevation: MaterialStateProperty.all(10),
+                                  backgroundColor: automaticMode ? MaterialStateProperty.all(Colors.red[500]) : MaterialStateProperty.all(Colors.amber[400]),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    automaticMode = !automaticMode;
+                                  });
+                                },
+                                child: SizedBox(
+                                  width: 75,
+                                  height: 70,
+                                  child: Center(
+                                    child: Text(
+                                      automaticMode ? AppLocalizations.of(context)!.stop : AppLocalizations.of(context)!.auto,
+                                      style: const TextStyle(
+                                        fontSize: 26,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  elevation: (!automaticMode && !isAssiting) ? MaterialStateProperty.all(10) : MaterialStateProperty.all(0),
                                   backgroundColor: isAssiting
                                       ? MaterialStateProperty.all(Colors.orange[100])
-                                      : allowTrade
+                                      : !automaticMode
                                           ? MaterialStateProperty.all(Colors.red)
                                           : MaterialStateProperty.all(Colors.grey[300]),
                                 ),
-                                onPressed: (allowTrade && !isAssiting) ? () => _buyFuture(code, lastTick!.close!) : null,
+                                onPressed: (!automaticMode && !isAssiting) ? () => _buyFuture(code, lastTick!.close!) : null,
                                 child: SizedBox(
                                   width: 130,
-                                  height: 50,
+                                  height: 70,
                                   child: Center(
                                     child: Text(
                                       !isAssiting ? AppLocalizations.of(context)!.buy : AppLocalizations.of(context)!.assisting,
@@ -760,17 +795,17 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  elevation: (allowTrade && !isAssiting) ? MaterialStateProperty.all(10) : MaterialStateProperty.all(0),
+                                  elevation: (!automaticMode && !isAssiting) ? MaterialStateProperty.all(10) : MaterialStateProperty.all(0),
                                   backgroundColor: isAssiting
                                       ? MaterialStateProperty.all(Colors.orange[100])
-                                      : allowTrade
+                                      : !automaticMode
                                           ? MaterialStateProperty.all(Colors.green)
                                           : MaterialStateProperty.all(Colors.grey[300]),
                                 ),
-                                onPressed: (allowTrade && !isAssiting) ? () => _sellFuture(code, lastTick!.close!) : null,
+                                onPressed: (!automaticMode && !isAssiting) ? () => _sellFuture(code, lastTick!.close!) : null,
                                 child: SizedBox(
                                   width: 130,
-                                  height: 50,
+                                  height: 70,
                                   child: Center(
                                     child: Text(
                                       !isAssiting ? AppLocalizations.of(context)!.sell : AppLocalizations.of(context)!.assisting,
@@ -793,11 +828,13 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return SfCartesianChart(
-                              plotAreaBorderWidth: 2,
+                              plotAreaBorderWidth: 0,
                               primaryYAxis: NumericAxis(
                                 isVisible: false,
                               ),
-                              primaryXAxis: DateTimeAxis(),
+                              primaryXAxis: DateTimeAxis(
+                                isVisible: false,
+                              ),
                               series: <ChartSeries>[
                                 CandleSeries(
                                   showIndicationForSameValues: true,
@@ -810,12 +847,18 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   highValueMapper: (datum, index) => (datum as KbarData).high,
                                   openValueMapper: (datum, index) => (datum as KbarData).open,
                                   closeValueMapper: (datum, index) => (datum as KbarData).close,
+                                  trendlines: <Trendline>[
+                                    Trendline(
+                                      type: TrendlineType.polynomial,
+                                      dashArray: <double>[5, 5],
+                                    ),
+                                  ],
                                 )
                               ],
                             );
                           }
                           return Text(
-                            'Kbar close is loading',
+                            AppLocalizations.of(context)!.kbar_is_loading,
                             style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
                           );
                         },

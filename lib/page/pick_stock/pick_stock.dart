@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PickStockPage extends StatefulWidget {
   const PickStockPage({super.key});
@@ -9,7 +10,7 @@ class PickStockPage extends StatefulWidget {
 
 class _PickStockPageState extends State<PickStockPage> {
   @override
-  Widget build(BuildContext context) => const Center(
-        child: Text('Pick Stock'),
+  Widget build(BuildContext context) => Center(
+        child: Text(AppLocalizations.of(context)!.pick_stock),
       );
 }

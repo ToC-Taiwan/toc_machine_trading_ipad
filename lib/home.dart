@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:toc_machine_trading_ipad/page/page.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,7 +13,7 @@ class _HomePageState extends State<HomePage> {
   int _page = 0;
   List<Widget> pages = [
     const TargetsPage(),
-    const RebornPage(),
+    const StrategyPage(),
     const FutureTradePage(),
     const PickStockPage(),
     const BalancePage(),
@@ -25,9 +26,9 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.amber[50],
           child: Column(
             children: [
-              const Expanded(
+              Expanded(
                 child: DrawerHeader(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
@@ -39,8 +40,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Center(
                     child: Text(
-                      'Menu',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.menu,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                         fontSize: 30,
@@ -56,7 +57,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.assignment_outlined),
-                      title: const Text('Targets'),
+                      title: Text(AppLocalizations.of(context)!.targets),
                       onTap: () {
                         setState(() {
                           _page = 0;
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.call_to_action_rounded),
-                      title: const Text('Reborn'),
+                      title: Text(AppLocalizations.of(context)!.strategy),
                       onTap: () {
                         setState(() {
                           _page = 1;
@@ -76,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.account_balance_outlined),
-                      title: const Text('Future Trade'),
+                      title: Text(AppLocalizations.of(context)!.future_trade),
                       onTap: () {
                         setState(() {
                           _page = 2;
@@ -86,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.dashboard_customize),
-                      title: const Text('Pick Stock'),
+                      title: Text(AppLocalizations.of(context)!.pick_stock),
                       onTap: () {
                         setState(() {
                           _page = 3;
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.money),
-                      title: const Text('Balance'),
+                      title: Text(AppLocalizations.of(context)!.balance),
                       onTap: () {
                         setState(() {
                           _page = 4;

@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-Widget buildVolumeRatioCircle(double percent, double rate) => Padding(
-      padding: const EdgeInsets.only(right: 15),
-      child: CircularPercentIndicator(
-        animateFromLastPercent: true,
-        animation: true,
-        radius: 30,
-        lineWidth: 8,
-        percent: percent / 100,
-        center: Text('${percent.toStringAsFixed(0)}%'),
-        progressColor: percent >= 55
-            ? Colors.red
-            : percent <= 45
-                ? Colors.green
-                : Colors.yellow,
-      ),
+Widget buildVolumeRatioCircle(double percent, double rate) => CircularPercentIndicator(
+      animateFromLastPercent: true,
+      animation: true,
+      radius: 40,
+      lineWidth: 15,
+      percent: percent / 100,
+      center: Text('${percent.toStringAsFixed(0)}%'),
+      progressColor: percent >= 55
+          ? Colors.red
+          : percent <= 45
+              ? Colors.green
+              : Colors.yellow,
     );
 
 Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
@@ -27,7 +24,7 @@ Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
             style: GoogleFonts.getFont(
               'Source Code Pro',
               fontStyle: FontStyle.normal,
-              fontSize: 15,
+              fontSize: 20,
               color: Colors.blueGrey,
             ),
           ),
@@ -42,7 +39,7 @@ Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
                 style: GoogleFonts.getFont(
                   'Source Code Pro',
                   fontStyle: FontStyle.normal,
-                  fontSize: 15,
+                  fontSize: 20,
                   color: priceChg == 0
                       ? Colors.blueGrey
                       : priceChg > 0
@@ -59,7 +56,7 @@ Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
             style: GoogleFonts.getFont(
               'Source Code Pro',
               fontStyle: FontStyle.normal,
-              fontSize: 15,
+              fontSize: 20,
               color: breakCount == 0
                   ? Colors.blueGrey
                   : breakCount > 0
