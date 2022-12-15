@@ -91,5 +91,6 @@
   "unknown_error": "Unknown error",
   "menu": "Menu",
   "auto": "Auto",
-  "stop": "Stop"
+  "stop": "Stop",
+  "at_least_one_assist_option_shold_selected": "At least one assist option should be selected"
 }

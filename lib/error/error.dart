@@ -22,6 +22,8 @@ String msgFromErrCode(BuildContext context, num code) {
       return AppLocalizations.of(context)!.err_cancel_order_failed;
     case -9:
       return AppLocalizations.of(context)!.err_assiting_is_full;
+    case -10:
+      return AppLocalizations.of(context)!.at_least_one_assist_option_shold_selected;
   }
   return AppLocalizations.of(context)!.unknown_error;
 }

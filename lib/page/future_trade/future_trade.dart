@@ -36,8 +36,8 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   int qty = 1;
   int automationType = 0;
-  num? automationByBalanceHigh = 1;
-  num? automationByBalanceLow = -1;
+  num? automationByBalanceHigh = 4;
+  num? automationByBalanceLow = -4;
   num? automationByTimePeriod = 5;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -466,6 +466,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                           if (snapshot.hasData) {
                             final value = snapshot.data!;
                             return ListView.builder(
+                              shrinkWrap: true,
                               itemCount: value.length,
                               itemBuilder: (context, index) => Container(
                                 margin: const EdgeInsets.only(bottom: 2, right: 20, top: 4.25),
@@ -741,6 +742,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   backgroundColor: automaticMode ? MaterialStateProperty.all(Colors.red[500]) : MaterialStateProperty.all(Colors.amber[400]),
                                 ),
                                 onPressed: () {
+                                  if (!automationByBalance && !automationByTimer) {
+                                    showErrorDialog(context, ErrMessage(-10, AppLocalizations.of(context)!.at_least_one_assist_option_shold_selected));
+                                    return;
+                                  }
                                   setState(() {
                                     automaticMode = !automaticMode;
                                   });
@@ -827,16 +832,48 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         future: kbarArr,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
+                            var maxVolume = 0;
+                            for (final element in snapshot.data!) {
+                              if (maxVolume == 0) {
+                                maxVolume = element.volume!;
+                              } else {
+                                if (element.volume! > maxVolume) {
+                                  maxVolume = element.volume!;
+                                }
+                              }
+                            }
+
                             return SfCartesianChart(
+                              enableSideBySideSeriesPlacement: false,
                               plotAreaBorderWidth: 0,
                               primaryYAxis: NumericAxis(
                                 isVisible: false,
                               ),
                               primaryXAxis: DateTimeAxis(
-                                isVisible: false,
+                                majorGridLines: const MajorGridLines(width: 0),
                               ),
+                              axes: [
+                                NumericAxis(
+                                  isVisible: false,
+                                  name: 'price',
+                                ),
+                                NumericAxis(
+                                  maximum: maxVolume.toDouble() * 3,
+                                  isVisible: false,
+                                  opposedPosition: true,
+                                  name: 'volume',
+                                ),
+                              ],
                               series: <ChartSeries>[
+                                ColumnSeries(
+                                  yAxisName: 'volume',
+                                  dataSource: snapshot.data!,
+                                  xValueMapper: (datum, index) => (datum as KbarData).kbarTime,
+                                  yValueMapper: (datum, index) => (datum as KbarData).volume!,
+                                  pointColorMapper: (datum, index) => (datum as KbarData).close! > datum.open! ? Colors.redAccent : Colors.greenAccent,
+                                ),
                                 CandleSeries(
+                                  yAxisName: 'price',
                                   showIndicationForSameValues: true,
                                   enableSolidCandles: true,
                                   bearColor: Colors.green,
@@ -853,7 +890,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                       dashArray: <double>[5, 5],
                                     ),
                                   ],
-                                )
+                                ),
                               ],
                             );
                           }
