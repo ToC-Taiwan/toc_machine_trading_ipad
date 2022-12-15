@@ -30,6 +30,7 @@ Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
           ),
         ),
         Expanded(
+          flex: 2,
           child: Padding(
             padding: const EdgeInsets.only(right: 20),
             child: Align(

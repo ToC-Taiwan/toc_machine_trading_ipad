@@ -526,13 +526,13 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                       if (snapshot.hasData) {
                                         if (snapshot.data!.direction == 'Buy') {
                                           return Text(
-                                            '$code\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
+                                            '$code\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
                                             style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
                                           );
                                         }
                                         if (snapshot.data!.direction == 'Sell') {
                                           return Text(
-                                            '$code\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}}: ${snapshot.data!.price}',
+                                            '$code\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
                                             style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
                                           );
                                         }
