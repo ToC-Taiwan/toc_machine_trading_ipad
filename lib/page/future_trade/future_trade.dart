@@ -195,11 +195,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
     }
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (tradeRate.rate > 25 && lastRate < 10) {
-        if (tradeRate.percent1 > 85) {
+      if (tradeRate.rate / lastRate > 1.5 && lastRate > 10) {
+        if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-        } else if (tradeRate.percent1 < 15) {
+        } else if (tradeRate.percent1 < 30) {
           _sellFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
         }
@@ -627,13 +627,25 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                         if (snapshot.data!.direction == 'Buy') {
                                           return Text(
                                             '$code\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
-                                            style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
+                                            style: GoogleFonts.getFont(
+                                              'Source Code Pro',
+                                              fontStyle: FontStyle.normal,
+                                              fontSize: 35,
+                                              color: Colors.blueGrey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           );
                                         }
                                         if (snapshot.data!.direction == 'Sell') {
                                           return Text(
                                             '$code\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
-                                            style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 35, color: Colors.grey),
+                                            style: GoogleFonts.getFont(
+                                              'Source Code Pro',
+                                              fontStyle: FontStyle.normal,
+                                              fontSize: 35,
+                                              color: Colors.blueGrey,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           );
                                         }
                                       }
