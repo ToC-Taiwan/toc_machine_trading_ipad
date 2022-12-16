@@ -740,6 +740,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     _showByBalanceSetting();
                                   }
                                   setState(() {
+                                    if (automationByBalance && automaticMode) {
+                                      automaticMode = !automaticMode;
+                                    }
                                     automationByBalance = !automationByBalance;
                                   });
                                 },
@@ -761,6 +764,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     _showByTimePeriodSetting();
                                   }
                                   setState(() {
+                                    if (automationByTimer && automaticMode) {
+                                      automaticMode = !automaticMode;
+                                    }
                                     automationByTimer = !automationByTimer;
                                   });
                                 },
