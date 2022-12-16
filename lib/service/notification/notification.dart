@@ -1,10 +1,12 @@
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:toc_machine_trading_ipad/entity/entity.dart';
 
 void showOrderResult(BuildContext context, FutureOrder order) {
+  SystemSound.play(SystemSoundType.click);
   final actionStr = order.baseOrder!.action == 1 ? AppLocalizations.of(context)!.buy : AppLocalizations.of(context)!.sell;
   switch (order.baseOrder!.status) {
     case 1:

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -212,9 +213,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
+          SystemSound.play(SystemSoundType.click);
         } else if (tradeRate.percent1 < 30) {
           _sellFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
+          SystemSound.play(SystemSoundType.click);
         }
       }
     }
@@ -366,7 +369,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '-',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByBalanceHigh -= 1;
                           if (automationByBalanceHigh < 1) {
@@ -384,7 +387,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '+',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByBalanceHigh += 1;
                           if (automationByBalanceHigh > 50) {
@@ -426,7 +429,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '-',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByBalanceLow -= 1;
                           if (automationByBalanceLow < -50) {
@@ -444,7 +447,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '+',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByBalanceLow += 1;
                           if (automationByBalanceLow > -1) {
@@ -513,7 +516,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '-',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByTimePeriod -= 5;
                           if (automationByTimePeriod < 5) {
@@ -531,7 +534,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         '+',
                         style: TextStyle(color: Colors.black, fontSize: 22),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         setState(() {
                           automationByTimePeriod += 5;
                           if (automationByTimePeriod > 500) {
@@ -624,14 +627,28 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                           );
                                         }
                                       }
-                                      return Text(
-                                        '${code.substring(0, 3)}\n$delieveryDate',
-                                        style: GoogleFonts.getFont(
-                                          'Source Code Pro',
-                                          fontStyle: FontStyle.normal,
-                                          fontSize: 40,
-                                          color: Colors.blueGrey,
-                                          fontWeight: FontWeight.bold,
+                                      if (code.isNotEmpty) {
+                                        return Text(
+                                          '${code.substring(0, 3)}\n$delieveryDate',
+                                          style: GoogleFonts.getFont(
+                                            'Source Code Pro',
+                                            fontStyle: FontStyle.normal,
+                                            fontSize: 40,
+                                            color: Colors.blueGrey,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      }
+                                      return Center(
+                                        child: Text(
+                                          AppLocalizations.of(context)!.loading,
+                                          style: GoogleFonts.getFont(
+                                            'Source Code Pro',
+                                            fontStyle: FontStyle.normal,
+                                            fontSize: 40,
+                                            color: Colors.blueGrey,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       );
                                     },
@@ -817,7 +834,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   '+',
                                   style: TextStyle(color: Colors.black, fontSize: 22),
                                 ),
-                                onPressed: () async {
+                                onPressed: () {
                                   setState(() {
                                     qty++;
                                     if (qty == 10) {
