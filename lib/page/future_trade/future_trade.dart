@@ -36,9 +36,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   int qty = 1;
   int automationType = 0;
-  num? automationByBalanceHigh = 4;
-  num? automationByBalanceLow = -4;
-  num? automationByTimePeriod = 5;
+  num automationByBalanceHigh = 4;
+  num automationByBalanceLow = -4;
+  num automationByTimePeriod = 10;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
 
   double lastRate = 0;
@@ -327,10 +327,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: Text(AppLocalizations.of(context)!.settings),
+        title: Text(AppLocalizations.of(context)!.balance),
         content: StatefulBuilder(
           builder: (context, setState) => SizedBox(
-            height: 300,
+            height: 350,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -341,10 +341,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   selectedTextStyle: const TextStyle(color: Colors.teal, fontSize: 40),
-                  value: automationByBalanceHigh!.toInt(),
+                  value: automationByBalanceHigh.toInt(),
                   minValue: 1,
                   maxValue: 50,
-                  itemWidth: 75,
+                  itemWidth: 90,
                   axis: Axis.horizontal,
                   haptics: true,
                   onChanged: (value) {
@@ -353,6 +353,47 @@ class _FutureTradePageState extends State<FutureTradePage> {
                     });
                   },
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '-',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByBalanceHigh -= 1;
+                          if (automationByBalanceHigh < 1) {
+                            automationByBalanceHigh = 1;
+                          }
+                        });
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '+',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByBalanceHigh += 1;
+                          if (automationByBalanceHigh > 50) {
+                            automationByBalanceHigh = 50;
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
                 Text(AppLocalizations.of(context)!.loss),
                 NumberPicker(
                   decoration: BoxDecoration(
@@ -360,10 +401,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   selectedTextStyle: const TextStyle(color: Colors.teal, fontSize: 40),
-                  value: automationByBalanceLow!.toInt(),
+                  value: automationByBalanceLow.toInt(),
                   minValue: -50,
                   maxValue: -1,
-                  itemWidth: 75,
+                  itemWidth: 90,
                   axis: Axis.horizontal,
                   haptics: true,
                   onChanged: (value) {
@@ -372,26 +413,51 @@ class _FutureTradePageState extends State<FutureTradePage> {
                     });
                   },
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '-',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByBalanceLow -= 1;
+                          if (automationByBalanceLow < -50) {
+                            automationByBalanceLow = -50;
+                          }
+                        });
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '+',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByBalanceLow += 1;
+                          if (automationByBalanceLow > -1) {
+                            automationByBalanceLow = -1;
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ),
-        actions: [
-          Center(
-            child: ElevatedButton(
-              child: Text(
-                AppLocalizations.of(context)!.ok,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: () {
-                setState(() {
-                  automationByBalance = true;
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -408,44 +474,77 @@ class _FutureTradePageState extends State<FutureTradePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: Text(AppLocalizations.of(context)!.settings),
+        title: Text(AppLocalizations.of(context)!.time_period),
         content: StatefulBuilder(
-          builder: (context, setState) => NumberPicker(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.teal),
-              borderRadius: BorderRadius.circular(10),
+          builder: (context, setState) => SizedBox(
+            height: 150,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                NumberPicker(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.teal),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  selectedTextStyle: const TextStyle(color: Colors.teal, fontSize: 40),
+                  value: automationByTimePeriod.toInt(),
+                  minValue: 5,
+                  maxValue: 500,
+                  step: 5,
+                  itemWidth: 90,
+                  axis: Axis.horizontal,
+                  haptics: true,
+                  onChanged: (value) {
+                    setState(() {
+                      automationByTimePeriod = value;
+                    });
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '-',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByTimePeriod -= 5;
+                          if (automationByTimePeriod < 5) {
+                            automationByTimePeriod = 5;
+                          }
+                        });
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.yellow[50],
+                      ),
+                      child: const Text(
+                        '+',
+                        style: TextStyle(color: Colors.black, fontSize: 22),
+                      ),
+                      onPressed: () async {
+                        setState(() {
+                          automationByTimePeriod += 5;
+                          if (automationByTimePeriod > 500) {
+                            automationByTimePeriod = 500;
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-            selectedTextStyle: const TextStyle(color: Colors.teal, fontSize: 40),
-            value: automationByTimePeriod!.toInt(),
-            minValue: 5,
-            maxValue: 500,
-            step: 5,
-            itemWidth: 75,
-            axis: Axis.horizontal,
-            haptics: true,
-            onChanged: (value) {
-              setState(() {
-                automationByTimePeriod = value;
-              });
-            },
           ),
         ),
-        actions: [
-          Center(
-            child: ElevatedButton(
-              child: Text(
-                AppLocalizations.of(context)!.ok,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: () {
-                setState(() {
-                  automationByTimer = true;
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -560,10 +659,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     if (snapshot.hasData) {
                                       return Column(
                                         children: [
-                                          buildIndexRow('^IXIC', snapshot.data!.nasdaq!.priceChg!, snapshot.data!.nasdaq!.breakCount!),
+                                          buildIndexRow('NASDAQ', snapshot.data!.nasdaq!.priceChg!, snapshot.data!.nasdaq!.breakCount!),
                                           buildIndexRow('NQ=F', snapshot.data!.nf!.priceChg!, snapshot.data!.nf!.breakCount!),
-                                          buildIndexRow('^TWII', snapshot.data!.tse!.priceChg!, snapshot.data!.tse!.breakCount!),
-                                          buildIndexRow('TWO', snapshot.data!.otc!.priceChg!, snapshot.data!.otc!.breakCount!),
+                                          buildIndexRow('TSE', snapshot.data!.tse!.priceChg!, snapshot.data!.tse!.breakCount!),
+                                          buildIndexRow('OTC', snapshot.data!.otc!.priceChg!, snapshot.data!.otc!.breakCount!),
                                         ],
                                       );
                                     }
@@ -650,8 +749,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onLongPress: _showByBalanceSetting,
                                 onTap: () {
+                                  if (!automationByBalance) {
+                                    _showByBalanceSetting();
+                                  }
                                   setState(() {
                                     automationByBalance = !automationByBalance;
                                   });
@@ -669,8 +770,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onLongPress: _showByTimePeriodSetting,
                                 onTap: () {
+                                  if (!automationByTimer) {
+                                    _showByTimePeriodSetting();
+                                  }
                                   setState(() {
                                     automationByTimer = !automationByTimer;
                                   });

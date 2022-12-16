@@ -19,6 +19,7 @@ Widget buildVolumeRatioCircle(double percent, double rate) => CircularPercentInd
 Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
       children: [
         Expanded(
+          flex: 2,
           child: Text(
             '$name:',
             style: GoogleFonts.getFont(
