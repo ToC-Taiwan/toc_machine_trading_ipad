@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _page = 0;
+  int _page = 2;
   List<Widget> pages = [
     const TargetsPage(),
     const StrategyPage(),

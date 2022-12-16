@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:date_format/date_format.dart' as df;
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -42,6 +41,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
 
   double lastRate = 0;
+  double rateDifferenceRatio = 0;
   TradeRate tradeRate = TradeRate(0, 0, 0, 0, 0);
 
   List<RealTimeFutureTick> totalTickArr = [];
@@ -194,8 +194,21 @@ class _FutureTradePageState extends State<FutureTradePage> {
       fourthPeriod.arr.add(totalTickArr[i]);
     }
 
+    setState(() {
+      if (mounted) {
+        tradeRate = TradeRate(
+          firstPeriod.getOutInVolume().getOutInRatio(),
+          secondPeriod.getOutInVolume().getOutInRatio(),
+          thirdPeriod.getOutInVolume().getOutInRatio(),
+          fourthPeriod.getOutInVolume().getOutInRatio(),
+          firstPeriod.getOutInVolume().getRate(),
+        );
+        rateDifferenceRatio = tradeRate.rate / lastRate;
+      }
+    });
+
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (tradeRate.rate / lastRate > 1.5 && lastRate > 10) {
+      if (rateDifferenceRatio >= 1.5 && lastRate >= 5) {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
@@ -206,18 +219,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
       }
     }
     lastRate = tradeRate.rate;
-
-    setState(() {
-      if (mounted) {
-        tradeRate = TradeRate(
-          firstPeriod.getOutInVolume().getOutInRatio(),
-          secondPeriod.getOutInVolume().getOutInRatio(),
-          thirdPeriod.getOutInVolume().getOutInRatio(),
-          fourthPeriod.getOutInVolume().getOutInRatio(),
-          firstPeriod.getOutInVolume().getRate(),
-        );
-      }
-    });
   }
 
   Future<RealTimeFutureTick> getData(pb.WSFutureTick ws) async => RealTimeFutureTick.fromProto(ws);
@@ -563,39 +564,13 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         future: realTimeFutureTickArr,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
-                            final value = snapshot.data!;
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: value.length,
-                              itemBuilder: (context, index) => Container(
-                                margin: const EdgeInsets.only(bottom: 2, right: 20, top: 4.25),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: value[index].tickType == 1 ? Colors.red : Colors.green,
-                                    width: 1.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: ListTile(
-                                  dense: true,
-                                  leading: Text(
-                                    '${value[index].volume!}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: value[index].combo! ? 20 : 14,
-                                      color: value[index].tickType == 1 ? Colors.red : Colors.green,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    value[index].close!.toStringAsFixed(0),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: value[index].combo! ? 20 : 14,
-                                      color: value[index].tickType == 1 ? Colors.red : Colors.green,
-                                    ),
-                                  ),
-                                  trailing: Text(df.formatDate(value[index].tickTime!, [df.HH, ':', df.nn, ':', df.ss])),
-                                ),
+                            final arr = <Widget>[];
+                            for (final i in snapshot.data!) {
+                              arr.add(buildTickDetail(i));
+                            }
+                            return Center(
+                              child: Column(
+                                children: arr,
                               ),
                             );
                           }
@@ -619,14 +594,14 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               Expanded(
                                 flex: 3,
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 20),
+                                  padding: const EdgeInsets.only(left: 15),
                                   child: FutureBuilder<FuturePosition?>(
                                     future: futurePosition,
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         if (snapshot.data!.direction == 'Buy') {
                                           return Text(
-                                            '$code\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
+                                            '${code.substring(0, 3)}\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
                                             style: GoogleFonts.getFont(
                                               'Source Code Pro',
                                               fontStyle: FontStyle.normal,
@@ -638,7 +613,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                         }
                                         if (snapshot.data!.direction == 'Sell') {
                                           return Text(
-                                            '$code\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
+                                            '${code.substring(0, 3)}\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
                                             style: GoogleFonts.getFont(
                                               'Source Code Pro',
                                               fontStyle: FontStyle.normal,
@@ -650,7 +625,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                         }
                                       }
                                       return Text(
-                                        '$code\n$delieveryDate',
+                                        '${code.substring(0, 3)}\n$delieveryDate',
                                         style: GoogleFonts.getFont(
                                           'Source Code Pro',
                                           fontStyle: FontStyle.normal,
@@ -710,7 +685,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                               'Source Code Pro',
                                               fontStyle: FontStyle.normal,
                                               fontSize: 50,
-                                              color: Colors.black,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
