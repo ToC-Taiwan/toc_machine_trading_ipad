@@ -1,5 +1,6 @@
 import 'package:date_format/date_format.dart' as df;
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:toc_machine_trading_ipad/entity/entity.dart';
@@ -27,7 +28,7 @@ Widget buildVolumeRatioCircle(double percent, double rate) => CircularPercentInd
                   : Colors.yellow,
     );
 
-Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
+Widget buildIndexRow(BuildContext context, String name, num priceChg, num breakCount) => Row(
       children: [
         Expanded(
           flex: 2,
@@ -48,7 +49,7 @@ Widget buildIndexRow(String name, num priceChg, num breakCount) => Row(
             child: Align(
               alignment: Alignment.centerRight,
               child: Text(
-                priceChg.toStringAsFixed(2),
+                priceChg != 0 ? priceChg.toStringAsFixed(2) : AppLocalizations.of(context)!.loading,
                 style: GoogleFonts.getFont(
                   'Source Code Pro',
                   fontStyle: FontStyle.normal,

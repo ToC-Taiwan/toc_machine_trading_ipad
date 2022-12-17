@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:toc_machine_trading_ipad/entity/entity.dart';
@@ -30,6 +31,8 @@ String msgFromErrCode(BuildContext context, num code) {
 
 void showErrorDialog(BuildContext context, ErrMessage message) {
   if (message.errCode! != 0) {
+    final p = AudioPlayer();
+    p.setSource(AssetSource('sound/error.mp3')).then((_) => p.resume());
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

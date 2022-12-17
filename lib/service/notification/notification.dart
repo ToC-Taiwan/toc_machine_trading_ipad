@@ -1,13 +1,14 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:toc_machine_trading_ipad/entity/entity.dart';
 
 void showOrderResult(BuildContext context, FutureOrder order) {
-  SystemSound.play(SystemSoundType.click);
   final actionStr = order.baseOrder!.action == 1 ? AppLocalizations.of(context)!.buy : AppLocalizations.of(context)!.sell;
+  final p = AudioPlayer();
+  p.setSource(AssetSource('sound/notification.mp3')).then((_) => p.resume());
   switch (order.baseOrder!.status) {
     case 1:
       ElegantNotification(
@@ -103,6 +104,17 @@ void showOrderResult(BuildContext context, FutureOrder order) {
           color: Colors.orange,
         ),
         progressIndicatorColor: Colors.orange,
+        onDismiss: () {},
+      ).show(context);
+      return;
+    default:
+      ElegantNotification.error(
+        width: MediaQuery.of(context).size.width * 2 / 3,
+        notificationPosition: NotificationPosition.topCenter,
+        animation: AnimationType.fromTop,
+        toastDuration: const Duration(milliseconds: 2000),
+        title: Text(AppLocalizations.of(context)!.error),
+        description: Text(AppLocalizations.of(context)!.unknown_error),
         onDismiss: () {},
       ).show(context);
       return;

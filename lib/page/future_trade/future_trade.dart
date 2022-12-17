@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -213,11 +212,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-          SystemSound.play(SystemSoundType.click);
         } else if (tradeRate.percent1 < 30) {
           _sellFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-          SystemSound.play(SystemSoundType.click);
         }
       }
     }
@@ -663,10 +660,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     if (snapshot.hasData) {
                                       return Column(
                                         children: [
-                                          buildIndexRow('NASDAQ', snapshot.data!.nasdaq!.priceChg!, snapshot.data!.nasdaq!.breakCount!),
-                                          buildIndexRow('NQ=F', snapshot.data!.nf!.priceChg!, snapshot.data!.nf!.breakCount!),
-                                          buildIndexRow('TSE', snapshot.data!.tse!.priceChg!, snapshot.data!.tse!.breakCount!),
-                                          buildIndexRow('OTC', snapshot.data!.otc!.priceChg!, snapshot.data!.otc!.breakCount!),
+                                          buildIndexRow(context, 'NASDAQ', snapshot.data!.nasdaq!.priceChg!, snapshot.data!.nasdaq!.breakCount!),
+                                          buildIndexRow(context, 'NQ=F', snapshot.data!.nf!.priceChg!, snapshot.data!.nf!.breakCount!),
+                                          buildIndexRow(context, 'TSE', snapshot.data!.tse!.priceChg!, snapshot.data!.tse!.breakCount!),
+                                          buildIndexRow(context, 'OTC', snapshot.data!.otc!.priceChg!, snapshot.data!.otc!.breakCount!),
                                         ],
                                       );
                                     }
@@ -706,7 +703,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                             ),
                                           ),
                                           Text(
-                                            '$type ${snapshot.data!.priceChg!.toStringAsFixed(0)}',
+                                            '$type ${snapshot.data!.priceChg!.abs().toStringAsFixed(0)}',
                                             style: GoogleFonts.getFont(
                                               'Source Code Pro',
                                               fontStyle: FontStyle.normal,
