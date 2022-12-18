@@ -71,7 +71,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
   }
 
   void initialWS() {
-    _channel = IOWebSocketChannel.connect(Uri.parse(tradeAgentFutureWSURLPrefix));
+    _channel = IOWebSocketChannel.connect(Uri.parse(tradeAgentFutureWSURLPrefix), pingInterval: const Duration(seconds: 1));
     _channel!.stream.listen(
       (message) {
         final msg = pb.WSMessage.fromBuffer(message as List<int>);
