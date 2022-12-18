@@ -92,5 +92,6 @@
   "menu": "選單",
   "auto": "自動",
   "stop": "停止",
-  "at_least_one_assist_option_shold_selected": "至少要選擇一個助理選項"
+  "at_least_one_assist_option_shold_selected": "至少要選擇一個助理選項",
+  "connection_failed": "連線失敗"
 }

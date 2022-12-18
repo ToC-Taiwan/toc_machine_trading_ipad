@@ -15,6 +15,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.pending_submit),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
@@ -31,6 +32,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.pre_submitted),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
@@ -47,6 +49,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.submitted),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
@@ -58,6 +61,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.failed),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)}'),
@@ -69,6 +73,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.cancelled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)}'),
@@ -85,6 +90,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.filled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
@@ -96,6 +102,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.part_filled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
@@ -112,6 +119,7 @@ void showOrderResult(BuildContext context, FutureOrder order) {
         width: MediaQuery.of(context).size.width * 2 / 3,
         notificationPosition: NotificationPosition.topCenter,
         animation: AnimationType.fromTop,
+        animationDuration: Duration.zero,
         toastDuration: const Duration(milliseconds: 2000),
         title: Text(AppLocalizations.of(context)!.error),
         description: Text(AppLocalizations.of(context)!.unknown_error),
@@ -119,4 +127,23 @@ void showOrderResult(BuildContext context, FutureOrder order) {
       ).show(context);
       return;
   }
+}
+
+void showWSError(BuildContext context, Duration timePeriod) {
+  ElegantNotification(
+    width: MediaQuery.of(context).size.width * 1 / 4,
+    notificationPosition: NotificationPosition.bottomLeft,
+    animation: AnimationType.fromLeft,
+    animationDuration: Duration.zero,
+    toastDuration: timePeriod,
+    title: Text(AppLocalizations.of(context)!.connection_failed),
+    description: Text('Reconnect in ${timePeriod.inSeconds} seconds'),
+    icon: const Icon(
+      Icons.warning_amber_outlined,
+      color: Colors.teal,
+    ),
+    progressIndicatorColor: Colors.teal,
+    onDismiss: () {},
+    displayCloseButton: false,
+  ).show(context);
 }

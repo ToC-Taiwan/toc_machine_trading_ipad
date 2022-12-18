@@ -24,6 +24,7 @@ class FutureTradePage extends StatefulWidget {
 
 class _FutureTradePageState extends State<FutureTradePage> {
   late IOWebSocketChannel? _channel;
+  final Duration _wsReconnectDuration = const Duration(seconds: 5);
 
   String code = '';
   String delieveryDate = '';
@@ -73,10 +74,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
     _channel = IOWebSocketChannel.connect(Uri.parse(tradeAgentFutureWSURLPrefix));
     _channel!.stream.listen(
       (message) {
-        if (message == 'pong') {
-          return;
-        }
-
         final msg = pb.WSMessage.fromBuffer(message as List<int>);
         switch (msg.type) {
           case pb.WSType.TYPE_FUTURE_TICK:
@@ -140,19 +137,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
       },
       onDone: () {
         if (mounted) {
-          initialWS();
+          showWSError(context, _wsReconnectDuration);
+          Future.delayed(_wsReconnectDuration).then((value) {
+            _channel!.sink.close();
+            tickArr = [];
+            initialWS();
+          });
         }
       },
+      onError: (error) {},
     );
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        try {
-          _channel!.sink.add('ping');
-        } on Exception catch (_) {
-          timer.cancel();
-        }
-      }
-    });
   }
 
   void updateTradeRate(pb.WSFutureTick ws, List<RealTimeFutureTick> totalArr) {
