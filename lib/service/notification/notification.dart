@@ -12,11 +12,11 @@ void showOrderResult(BuildContext context, FutureOrder order) {
   switch (order.baseOrder!.status) {
     case 1:
       ElegantNotification(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.pending_submit),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
         icon: const Icon(
@@ -24,16 +24,16 @@ void showOrderResult(BuildContext context, FutureOrder order) {
           color: Colors.orange,
         ),
         progressIndicatorColor: Colors.orange,
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 2:
       ElegantNotification(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.pre_submitted),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
         icon: const Icon(
@@ -41,40 +41,40 @@ void showOrderResult(BuildContext context, FutureOrder order) {
           color: Colors.orange,
         ),
         progressIndicatorColor: Colors.orange,
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 3:
       ElegantNotification.info(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.submitted),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 4:
       ElegantNotification.error(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.failed),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)}'),
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 5:
       ElegantNotification(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.cancelled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)}'),
         icon: const Icon(
@@ -82,28 +82,28 @@ void showOrderResult(BuildContext context, FutureOrder order) {
           color: Colors.orange,
         ),
         progressIndicatorColor: Colors.orange,
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 6:
       ElegantNotification.success(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.filled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     case 7:
       ElegantNotification(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.part_filled),
         description: Text('$actionStr ${order.baseOrder!.price!.toStringAsFixed(0)} x ${order.baseOrder!.quantity}'),
         icon: const Icon(
@@ -111,39 +111,37 @@ void showOrderResult(BuildContext context, FutureOrder order) {
           color: Colors.orange,
         ),
         progressIndicatorColor: Colors.orange,
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
     default:
       ElegantNotification.error(
-        width: MediaQuery.of(context).size.width * 2 / 3,
-        notificationPosition: NotificationPosition.topCenter,
-        animation: AnimationType.fromTop,
-        animationDuration: Duration.zero,
-        toastDuration: const Duration(milliseconds: 2000),
+        width: MediaQuery.of(context).size.width * 2 / 7,
+        notificationPosition: NotificationPosition.bottomLeft,
+        animation: AnimationType.fromLeft,
+        animationDuration: const Duration(milliseconds: 200),
+        toastDuration: const Duration(milliseconds: 3500),
         title: Text(AppLocalizations.of(context)!.error),
         description: Text(AppLocalizations.of(context)!.unknown_error),
-        onDismiss: () {},
+        displayCloseButton: false,
       ).show(context);
       return;
   }
 }
 
-void showWSError(BuildContext context, Duration timePeriod) {
+void showReconnectingWS(BuildContext context) {
   ElegantNotification(
-    width: MediaQuery.of(context).size.width * 1 / 4,
+    width: MediaQuery.of(context).size.width * 2 / 7,
     notificationPosition: NotificationPosition.bottomLeft,
     animation: AnimationType.fromLeft,
-    animationDuration: Duration.zero,
-    toastDuration: timePeriod,
+    toastDuration: const Duration(milliseconds: 4000),
     title: Text(AppLocalizations.of(context)!.connection_failed),
-    description: Text('Reconnect in ${timePeriod.inSeconds} seconds'),
+    description: const Text('Reconnecting...'),
     icon: const Icon(
       Icons.warning_amber_outlined,
       color: Colors.teal,
     ),
     progressIndicatorColor: Colors.teal,
-    onDismiss: () {},
     displayCloseButton: false,
   ).show(context);
 }

@@ -24,7 +24,6 @@ class FutureTradePage extends StatefulWidget {
 
 class _FutureTradePageState extends State<FutureTradePage> {
   late IOWebSocketChannel? _channel;
-  final Duration _wsReconnectDuration = const Duration(seconds: 5);
 
   String code = '';
   String delieveryDate = '';
@@ -36,7 +35,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   int qty = 1;
   int automationType = 0;
-  num automationByBalanceHigh = 4;
+  num automationByBalanceHigh = 3;
   num automationByBalanceLow = -4;
   num automationByTimePeriod = 10;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
@@ -137,10 +136,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
       },
       onDone: () {
         if (mounted) {
-          showWSError(context, _wsReconnectDuration);
-          Future.delayed(_wsReconnectDuration).then((value) {
+          showReconnectingWS(context);
+          Future.delayed(const Duration(milliseconds: 5000)).then((value) {
             _channel!.sink.close();
             tickArr = [];
+            tradeRate = TradeRate(0, 0, 0, 0, 0);
             initialWS();
           });
         }

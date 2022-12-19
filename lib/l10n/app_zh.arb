@@ -82,7 +82,7 @@
   "err_get_position": "取得持倉錯誤",
   "err_place_order": "下單錯誤",
   "err_cancel_order_failed": "取消訂單失敗",
-  "err_assiting_is_full": "助理已滿",
+  "err_assiting_is_not_finished": "助理尚未完成",
   "assist_is_done": "助理已完成",
   "earn": "賺",
   "loss": "賠",
