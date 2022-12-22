@@ -128,7 +128,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
       onDone: () {
         if (mounted) {
           addNotification(TradeNotification.reconnectingWS(context));
-          Future.delayed(const Duration(milliseconds: 5000)).then((value) {
+          Future.delayed(const Duration(milliseconds: 1000)).then((value) {
             _channel!.sink.close();
             tickArr = [];
             tradeRate = TradeRate(0, 0, 0, 0, 0);
@@ -903,15 +903,26 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   elevation: MaterialStateProperty.all(10),
                                   backgroundColor: automaticMode ? MaterialStateProperty.all(Colors.red[500]) : MaterialStateProperty.all(Colors.amber[400]),
                                 ),
-                                onPressed: () {
-                                  if (!automationByBalance && !automationByTimer) {
-                                    addNotification(TradeNotification.fromError(context, -10));
-                                    return;
-                                  }
-                                  setState(() {
-                                    automaticMode = !automaticMode;
-                                  });
-                                },
+                                onPressed: !automaticMode
+                                    ? () {
+                                        if (!automationByBalance && !automationByTimer) {
+                                          addNotification(TradeNotification.fromError(context, -10));
+                                          return;
+                                        }
+                                        setState(() {
+                                          automaticMode = !automaticMode;
+                                        });
+                                      }
+                                    : () {
+                                        _channel!.sink.close();
+                                        setState(() {
+                                          tickArr = [];
+                                          tradeRate = TradeRate(0, 0, 0, 0, 0);
+                                          automaticMode = !automaticMode;
+                                          automationByBalance = false;
+                                          automationByTimer = false;
+                                        });
+                                      },
                                 child: SizedBox(
                                   width: 75,
                                   height: 70,
