@@ -7,11 +7,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:toc_machine_trading_ipad/entity/entity.dart';
-import 'package:toc_machine_trading_ipad/error/error.dart';
 import 'package:toc_machine_trading_ipad/global/global.dart';
+import 'package:toc_machine_trading_ipad/page/future_trade/notification.dart';
 import 'package:toc_machine_trading_ipad/page/future_trade/widget.dart';
 import 'package:toc_machine_trading_ipad/pb/app.pb.dart' as pb;
-import 'package:toc_machine_trading_ipad/service/service.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -27,6 +26,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   String code = '';
   String delieveryDate = '';
+  List<TradeNotification> notificationList = [];
 
   bool isAssiting = false;
   bool automaticMode = false;
@@ -57,9 +57,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   @override
   void initState() {
-    super.initState();
     initialWS();
     Wakelock.enable();
+    super.initState();
   }
 
   @override
@@ -73,31 +73,27 @@ class _FutureTradePageState extends State<FutureTradePage> {
     _channel = IOWebSocketChannel.connect(Uri.parse(tradeAgentFutureWSURLPrefix), pingInterval: const Duration(seconds: 1));
     _channel!.stream.listen(
       (message) {
+        if (!mounted) {
+          return;
+        }
+
         final msg = pb.WSMessage.fromBuffer(message as List<int>);
         switch (msg.type) {
           case pb.WSType.TYPE_FUTURE_TICK:
-            if (mounted) {
-              updateTradeRate(msg.futureTick, totalTickArr);
-              setState(() {
-                lastTick = RealTimeFutureTick.fromProto(msg.futureTick);
-                realTimeFutureTick = getData(msg.futureTick);
-                realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
-              });
-            }
+            updateTradeRate(msg.futureTick, totalTickArr);
+            realTimeFutureTick = getData(msg.futureTick);
+            realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
+            setState(() {
+              lastTick = RealTimeFutureTick.fromProto(msg.futureTick);
+            });
             return;
 
           case pb.WSType.TYPE_FUTURE_ORDER:
-            if (mounted) {
-              showOrderResult(context, FutureOrder.fromProto(msg.futureOrder));
-            }
+            addNotification(TradeNotification.fromOrder(context, FutureOrder.fromProto(msg.futureOrder)));
             return;
 
           case pb.WSType.TYPE_TRADE_INDEX:
-            if (mounted) {
-              setState(() {
-                tradeIndex = updateTradeIndex(msg.tradeIndex);
-              });
-            }
+            tradeIndex = updateTradeIndex(msg.tradeIndex);
             return;
 
           case pb.WSType.TYPE_FUTURE_POSITION:
@@ -107,36 +103,31 @@ class _FutureTradePageState extends State<FutureTradePage> {
             return;
 
           case pb.WSType.TYPE_ASSIST_STATUS:
-            if (mounted) {
-              setState(() {
-                isAssiting = AssistStatus.fromProto(msg.assitStatus).running!;
-              });
-            }
+            setState(() {
+              isAssiting = AssistStatus.fromProto(msg.assitStatus).running!;
+            });
             return;
 
           case pb.WSType.TYPE_KBAR_ARR:
-            setState(() {
-              kbarArr = getKbarArr(msg.historyKbar);
-            });
+            kbarArr = getKbarArr(msg.historyKbar);
             return;
 
           case pb.WSType.TYPE_ERR_MESSAGE:
-            if (mounted) {
-              showErrorDialog(context, ErrMessage.fromProto(msg.errMessage));
-            }
+            addNotification(TradeNotification.fromError(context, msg.errMessage.errCode.toInt()));
             return;
 
           case pb.WSType.TYPE_FUTURE_DETAIL:
-            code = msg.futureDetail.code;
             setState(() {
+              code = msg.futureDetail.code;
               delieveryDate = msg.futureDetail.deliveryDate;
             });
+            addNotification(TradeNotification.connected(context));
             return;
         }
       },
       onDone: () {
         if (mounted) {
-          showReconnectingWS(context);
+          addNotification(TradeNotification.reconnectingWS(context));
           Future.delayed(const Duration(milliseconds: 5000)).then((value) {
             _channel!.sink.close();
             tickArr = [];
@@ -189,20 +180,18 @@ class _FutureTradePageState extends State<FutureTradePage> {
     }
 
     setState(() {
-      if (mounted) {
-        tradeRate = TradeRate(
-          firstPeriod.getOutInVolume().getOutInRatio(),
-          secondPeriod.getOutInVolume().getOutInRatio(),
-          thirdPeriod.getOutInVolume().getOutInRatio(),
-          fourthPeriod.getOutInVolume().getOutInRatio(),
-          firstPeriod.getOutInVolume().getRate(),
-        );
-        rateDifferenceRatio = tradeRate.rate / lastRate;
-      }
+      tradeRate = TradeRate(
+        firstPeriod.getOutInVolume().getOutInRatio(),
+        secondPeriod.getOutInVolume().getOutInRatio(),
+        thirdPeriod.getOutInVolume().getOutInRatio(),
+        fourthPeriod.getOutInVolume().getOutInRatio(),
+        firstPeriod.getOutInVolume().getRate(),
+      );
+      rateDifferenceRatio = tradeRate.rate / lastRate;
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (rateDifferenceRatio >= 1.5 && lastRate >= 5) {
+      if (lastRate > 7 && lastRate < 10 && rateDifferenceRatio > 1.5) {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
@@ -243,7 +232,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
       originalArr.last.combo = true;
     } else {
       originalArr.add(tmp);
-      if (originalArr.length > 14) {
+      if (originalArr.length > 7) {
         originalArr.removeAt(0);
       }
     }
@@ -544,6 +533,15 @@ class _FutureTradePageState extends State<FutureTradePage> {
     );
   }
 
+  void addNotification(TradeNotification notification) {
+    setState(() {
+      notificationList.insert(0, notification);
+      if (notificationList.length > 4) {
+        notificationList.removeLast();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.all(15),
@@ -572,6 +570,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         },
                       ),
                     ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          if (notificationList.isNotEmpty) buildNotification(notificationList[0]) else Container(),
+                          if (notificationList.length > 1) buildNotification(notificationList[1]) else Container(),
+                          if (notificationList.length > 2) buildNotification(notificationList[2]) else Container(),
+                          if (notificationList.length > 3) buildNotification(notificationList[3]) else Container(),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -586,48 +594,74 @@ class _FutureTradePageState extends State<FutureTradePage> {
                           Row(
                             children: [
                               Expanded(
-                                flex: 3,
+                                flex: 2,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 15),
                                   child: FutureBuilder<FuturePosition?>(
                                     future: futurePosition,
                                     builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        if (snapshot.data!.direction == 'Buy') {
-                                          return Text(
-                                            '${code.substring(0, 3)}\n${AppLocalizations.of(context)!.buy}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
-                                            style: GoogleFonts.getFont(
-                                              'Source Code Pro',
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 35,
-                                              color: Colors.blueGrey,
-                                              fontWeight: FontWeight.bold,
+                                      if (snapshot.hasData && snapshot.data!.direction != null) {
+                                        String action;
+                                        action = snapshot.data!.direction == 'Buy' ? AppLocalizations.of(context)!.buy : AppLocalizations.of(context)!.sell;
+                                        return Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                code.substring(0, 3),
+                                                style: GoogleFonts.getFont(
+                                                  'Source Code Pro',
+                                                  fontStyle: FontStyle.normal,
+                                                  fontSize: 50,
+                                                  color: Colors.blueGrey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
-                                          );
-                                        }
-                                        if (snapshot.data!.direction == 'Sell') {
-                                          return Text(
-                                            '${code.substring(0, 3)}\n${AppLocalizations.of(context)!.sell}: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
-                                            style: GoogleFonts.getFont(
-                                              'Source Code Pro',
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 35,
-                                              color: Colors.blueGrey,
-                                              fontWeight: FontWeight.bold,
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                '$action: ${snapshot.data!.quantity}\n${AppLocalizations.of(context)!.avg}: ${snapshot.data!.price}',
+                                                style: GoogleFonts.getFont(
+                                                  'Source Code Pro',
+                                                  fontStyle: FontStyle.normal,
+                                                  fontSize: 25,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
                                             ),
-                                          );
-                                        }
+                                          ],
+                                        );
                                       }
                                       if (code.isNotEmpty) {
-                                        return Text(
-                                          '${code.substring(0, 3)}\n$delieveryDate',
-                                          style: GoogleFonts.getFont(
-                                            'Source Code Pro',
-                                            fontStyle: FontStyle.normal,
-                                            fontSize: 40,
-                                            color: Colors.blueGrey,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        return Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                code.substring(0, 3),
+                                                style: GoogleFonts.getFont(
+                                                  'Source Code Pro',
+                                                  fontStyle: FontStyle.normal,
+                                                  fontSize: 50,
+                                                  color: Colors.blueGrey,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Settlement: $delieveryDate',
+                                                style: GoogleFonts.getFont(
+                                                  'Source Code Pro',
+                                                  fontStyle: FontStyle.normal,
+                                                  fontSize: 25,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         );
                                       }
                                       return Center(
@@ -638,7 +672,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                             fontStyle: FontStyle.normal,
                                             fontSize: 40,
                                             color: Colors.blueGrey,
-                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       );
@@ -685,50 +718,68 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            snapshot.data!.close!.toStringAsFixed(0),
-                                            style: GoogleFonts.getFont(
-                                              'Source Code Pro',
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 50,
-                                              fontWeight: FontWeight.bold,
+                                      Expanded(
+                                        flex: 3,
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              snapshot.data!.close!.toStringAsFixed(0),
+                                              style: GoogleFonts.getFont(
+                                                'Source Code Pro',
+                                                fontStyle: FontStyle.normal,
+                                                fontSize: 50,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            '$type ${snapshot.data!.priceChg!.abs().toStringAsFixed(0)}',
-                                            style: GoogleFonts.getFont(
-                                              'Source Code Pro',
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 50,
-                                              color: snapshot.data!.priceChg! == 0
-                                                  ? Colors.blueGrey
-                                                  : snapshot.data!.priceChg! > 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                              fontWeight: FontWeight.bold,
+                                            Text(
+                                              '$type ${snapshot.data!.priceChg!.abs().toStringAsFixed(0)}',
+                                              style: GoogleFonts.getFont(
+                                                'Source Code Pro',
+                                                fontStyle: FontStyle.normal,
+                                                fontSize: 50,
+                                                color: snapshot.data!.priceChg! == 0
+                                                    ? Colors.blueGrey
+                                                    : snapshot.data!.priceChg! > 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        '${tradeRate.rate.toStringAsFixed(2)}/s',
-                                        style: GoogleFonts.getFont(
-                                          'Source Code Pro',
-                                          fontStyle: FontStyle.normal,
-                                          fontSize: 35,
-                                          color: tradeRate.rate < 10
-                                              ? Colors.grey
-                                              : tradeRate.percent1 > 50
-                                                  ? Colors.red
-                                                  : Colors.green,
+                                          ],
                                         ),
                                       ),
-                                      buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
-                                      buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
-                                      buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
-                                      buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Center(
+                                          child: Text(
+                                            '${tradeRate.rate.toStringAsFixed(2)}/s',
+                                            style: GoogleFonts.getFont(
+                                              'Source Code Pro',
+                                              fontStyle: FontStyle.normal,
+                                              fontSize: 35,
+                                              color: tradeRate.rate < 7
+                                                  ? Colors.grey
+                                                  : tradeRate.percent1 > 70
+                                                      ? Colors.red
+                                                      : tradeRate.percent1 < 30
+                                                          ? Colors.green
+                                                          : Colors.yellow,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 7,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
+                                            buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
+                                            buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
+                                            buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -743,17 +794,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onTap: () {
-                                  if (!automationByBalance) {
-                                    _showByBalanceSetting();
-                                  }
-                                  setState(() {
-                                    if (automationByBalance && automaticMode) {
-                                      automaticMode = !automaticMode;
-                                    }
-                                    automationByBalance = !automationByBalance;
-                                  });
-                                },
+                                onTap: !automaticMode
+                                    ? () {
+                                        if (!automationByBalance) {
+                                          _showByBalanceSetting();
+                                        }
+                                        setState(() {
+                                          automationByBalance = !automationByBalance;
+                                        });
+                                      }
+                                    : null,
                                 child: SizedBox(
                                   width: 40,
                                   height: 40,
@@ -767,17 +817,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onTap: () {
-                                  if (!automationByTimer) {
-                                    _showByTimePeriodSetting();
-                                  }
-                                  setState(() {
-                                    if (automationByTimer && automaticMode) {
-                                      automaticMode = !automaticMode;
-                                    }
-                                    automationByTimer = !automationByTimer;
-                                  });
-                                },
+                                onTap: !automaticMode
+                                    ? () {
+                                        if (!automationByTimer) {
+                                          _showByTimePeriodSetting();
+                                        }
+                                        setState(() {
+                                          automationByTimer = !automationByTimer;
+                                        });
+                                      }
+                                    : null,
                                 child: SizedBox(
                                   width: 40,
                                   height: 40,
@@ -791,20 +840,25 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   shape: const CircleBorder(),
-                                  backgroundColor: Colors.yellow[50],
+                                  backgroundColor: automaticMode ? Colors.grey : Colors.yellow[50],
                                 ),
-                                child: const Text(
+                                onPressed: !automaticMode
+                                    ? () {
+                                        setState(() {
+                                          qty--;
+                                          if (qty == 0) {
+                                            qty = 1;
+                                          }
+                                        });
+                                      }
+                                    : null,
+                                child: Text(
                                   '-',
-                                  style: TextStyle(color: Colors.black, fontSize: 22),
+                                  style: TextStyle(
+                                    color: !automaticMode ? Colors.black : Colors.grey,
+                                    fontSize: 22,
+                                  ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    qty--;
-                                    if (qty == 0) {
-                                      qty = 1;
-                                    }
-                                  });
-                                },
                               ),
                               Text(
                                 qty.toString(),
@@ -819,20 +873,25 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   shape: const CircleBorder(),
-                                  backgroundColor: Colors.yellow[50],
+                                  backgroundColor: automaticMode ? Colors.grey : Colors.yellow[50],
                                 ),
-                                child: const Text(
+                                onPressed: !automaticMode
+                                    ? () {
+                                        setState(() {
+                                          qty++;
+                                          if (qty == 10) {
+                                            qty = 9;
+                                          }
+                                        });
+                                      }
+                                    : null,
+                                child: Text(
                                   '+',
-                                  style: TextStyle(color: Colors.black, fontSize: 22),
+                                  style: TextStyle(
+                                    color: !automaticMode ? Colors.black : Colors.grey,
+                                    fontSize: 22,
+                                  ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    qty++;
-                                    if (qty == 10) {
-                                      qty = 9;
-                                    }
-                                  });
-                                },
                               ),
                               ElevatedButton(
                                 style: ButtonStyle(
@@ -846,7 +905,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                 ),
                                 onPressed: () {
                                   if (!automationByBalance && !automationByTimer) {
-                                    showErrorDialog(context, ErrMessage(-10, AppLocalizations.of(context)!.at_least_one_assist_option_shold_selected));
+                                    addNotification(TradeNotification.fromError(context, -10));
                                     return;
                                   }
                                   setState(() {

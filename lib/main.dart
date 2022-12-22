@@ -28,7 +28,7 @@ void main() async {
       ) =>
           locale,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.title,
-      title: 'TOC Machine Trading',
+      title: 'ToC Machine Trading',
       theme: ThemeData(
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,

@@ -9,7 +9,6 @@ dependencies:
   audioplayers: ^1.1.1
   cupertino_icons: ^1.0.4
   date_format: ^2.0.7
-  elegant_notification: ^1.6.4
   flutter:
     sdk: flutter
   flutter_localizations:

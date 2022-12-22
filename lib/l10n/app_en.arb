@@ -93,5 +93,6 @@
   "auto": "Auto",
   "stop": "Stop",
   "at_least_one_assist_option_shold_selected": "At least one assist option should be selected",
-  "connection_failed": "Connection failed"
+  "connection_failed": "Connection failed",
+  "connected": "Connected"
 }
