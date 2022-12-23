@@ -191,7 +191,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (lastRate > 5 && lastRate < 10 && rateDifferenceRatio > 2) {
+      if (lastRate > 7 && rateDifferenceRatio > 2) {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
