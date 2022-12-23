@@ -93,6 +93,7 @@
   "auto": "Auto",
   "stop": "Stop",
   "at_least_one_assist_option_shold_selected": "At least one assist option should be selected",
-  "disconnected": "Disconnected",
-  "connected": "Connected"
+  "disconnected_and_reconnecting": "Disconnected and reconnecting",
+  "connected": "Connected",
+  "connection_status": "Connection Status"
 }
