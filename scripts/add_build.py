@@ -30,4 +30,4 @@ with open("./data/build.json", "w") as outfile:
         "build_number": current_build_number + 1,
     }
     data.append(tmp)
-    outfile.write(json.dumps(data, indent=4))
+    outfile.write(f"{json.dumps(data, indent=4)}\n")
