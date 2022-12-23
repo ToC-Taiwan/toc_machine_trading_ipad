@@ -149,24 +149,25 @@ class _FutureTradePageState extends State<FutureTradePage> {
     final thirdPeriod = RealTimeFutureTickArr();
     final fourthPeriod = RealTimeFutureTickArr();
 
+    final startTime = totalTickArr[totalTickArr.length - 1].tickTime;
     for (var i = 0; i < totalTickArr.length; i++) {
-      if (totalTickArr[i].tickTime!.isBefore(DateTime.now().subtract(baseDuration * 4))) {
+      if (totalTickArr[i].tickTime!.isBefore(startTime!.subtract(baseDuration * 4))) {
         totalTickArr.removeAt(i);
         continue;
       }
 
-      if (totalTickArr[i].tickTime!.isBefore(DateTime.now().subtract(baseDuration * 3))) {
+      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 3))) {
         fourthPeriod.arr.add(totalTickArr[i]);
         continue;
       }
 
-      if (totalTickArr[i].tickTime!.isBefore(DateTime.now().subtract(baseDuration * 2))) {
+      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 2))) {
         thirdPeriod.arr.add(totalTickArr[i]);
         fourthPeriod.arr.add(totalTickArr[i]);
         continue;
       }
 
-      if (totalTickArr[i].tickTime!.isBefore(DateTime.now().subtract(baseDuration * 1))) {
+      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 1))) {
         secondPeriod.arr.add(totalTickArr[i]);
         thirdPeriod.arr.add(totalTickArr[i]);
         fourthPeriod.arr.add(totalTickArr[i]);
@@ -188,6 +189,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
         firstPeriod.getOutInVolume().getRate(),
       );
       rateDifferenceRatio = tradeRate.rate / lastRate;
+      // log('rate: ${tradeRate.rate.toString()}, diff_ratio: ${rateDifferenceRatio.toStringAsFixed(2)}');
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
