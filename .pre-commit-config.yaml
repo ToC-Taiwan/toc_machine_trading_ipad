@@ -7,3 +7,9 @@ repos:
       - id: check-yaml
       - id: check-shebang-scripts-are-executable
       - id: detect-private-key
+  - repo: local
+    hooks:
+      - id: check-build
+        name: check-build
+        language: system
+        entry: ./scripts/check_build.py
