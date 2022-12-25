@@ -28,14 +28,14 @@ class _FutureTradePageState extends State<FutureTradePage> {
   String delieveryDate = '';
   List<TradeNotification> notificationList = [];
 
-  bool isAssiting = false;
   bool automaticMode = false;
   bool automationByTimer = false;
   bool automationByBalance = false;
+  bool isAssiting = false;
 
   int qty = 1;
   int automationType = 0;
-  num automationByBalanceHigh = 3;
+  num automationByBalanceHigh = 4;
   num automationByBalanceLow = -4;
   num automationByTimePeriod = 10;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
@@ -47,7 +47,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
   List<RealTimeFutureTick> totalTickArr = [];
   List<RealTimeFutureTick> tickArr = [];
   RealTimeFutureTick? lastTick;
-  RealTimeFutureTick? beforeLastTick;
 
   Future<RealTimeFutureTick?> realTimeFutureTick = Future.value();
   Future<FuturePosition?> futurePosition = Future.value();
@@ -251,6 +250,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     if (close == 0) {
       return;
     }
+
     num automationType = 0;
     if (automationByBalance && automationByTimer) {
       automationType = 3;
@@ -259,6 +259,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     } else if (automationByTimer) {
       automationType = 2;
     }
+
     _channel!.sink.add(
       jsonEncode(
         {
@@ -281,6 +282,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     if (close == 0) {
       return;
     }
+
     num automationType = 0;
     if (automationByBalance && automationByTimer) {
       automationType = 3;
@@ -289,6 +291,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     } else if (automationByTimer) {
       automationType = 2;
     }
+
     _channel!.sink.add(
       jsonEncode(
         {
@@ -616,7 +619,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                code.substring(0, 3),
+                                                code,
                                                 style: GoogleFonts.getFont(
                                                   'Source Code Pro',
                                                   fontStyle: FontStyle.normal,
@@ -647,7 +650,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                code.substring(0, 3),
+                                                code,
                                                 style: GoogleFonts.getFont(
                                                   'Source Code Pro',
                                                   fontStyle: FontStyle.normal,
