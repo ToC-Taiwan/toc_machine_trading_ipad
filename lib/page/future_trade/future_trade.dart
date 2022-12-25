@@ -81,9 +81,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
         switch (msg.type) {
           case pb.WSType.TYPE_FUTURE_TICK:
             updateTradeRate(msg.futureTick, totalTickArr);
-            realTimeFutureTick = getData(msg.futureTick);
-            realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
             setState(() {
+              realTimeFutureTick = getData(msg.futureTick);
+              realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
               lastTick = RealTimeFutureTick.fromProto(msg.futureTick);
             });
             return;
@@ -93,12 +93,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
             return;
 
           case pb.WSType.TYPE_TRADE_INDEX:
-            tradeIndex = updateTradeIndex(msg.tradeIndex);
+            setState(() {
+              tradeIndex = updateTradeIndex(msg.tradeIndex);
+            });
             return;
 
           case pb.WSType.TYPE_FUTURE_POSITION:
             if (code.isNotEmpty) {
-              futurePosition = updateFuturePosition(msg.futurePosition, code);
+              setState(() {
+                futurePosition = updateFuturePosition(msg.futurePosition, code);
+              });
             }
             return;
 
@@ -109,7 +113,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
             return;
 
           case pb.WSType.TYPE_KBAR_ARR:
-            kbarArr = getKbarArr(msg.historyKbar);
+            setState(() {
+              kbarArr = getKbarArr(msg.historyKbar);
+            });
             return;
 
           case pb.WSType.TYPE_ERR_MESSAGE:
