@@ -93,7 +93,7 @@
   "auto": "自動",
   "stop": "停止",
   "at_least_one_assist_option_shold_selected": "至少要選擇一個助理選項",
-  "disconnected_and_reconnecting": "已斷線，正在重新連線",
+  "disconnected": "已斷線",
   "connected": "已連線",
-  "connection_status": "連線狀態"
+  "connection": "連線"
 }

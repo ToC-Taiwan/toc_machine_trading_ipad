@@ -42,6 +42,13 @@ class RealTimeFutureTick {
     chgType = tick.chgType.toInt();
     priceChg = tick.priceChg;
     pctChg = tick.pctChg;
+    if (tick.priceChg > 0) {
+      changeType = '↗️';
+    } else if (tick.priceChg < 0) {
+      changeType = '↘️';
+    } else {
+      changeType = '';
+    }
   }
 
   String? code;
@@ -64,6 +71,7 @@ class RealTimeFutureTick {
   num? pctChg;
   num? simtrade;
   bool? combo = false;
+  String? changeType;
 }
 
 class RealTimeFutureTickArr {
@@ -254,4 +262,35 @@ class KbarData {
   num? high;
   num? low;
   int? volume;
+}
+
+class KbarArr {
+  KbarArr.fromProto(pb.WSHistoryKbarMessage ws) {
+    arr = [];
+    maxVolume = 0;
+
+    for (final element in ws.arr) {
+      arr!.add(
+        KbarData(
+          kbarTime: DateTime.parse(element.kbarTime),
+          high: element.high,
+          low: element.low,
+          open: element.open,
+          close: element.close,
+          volume: element.volume.toInt(),
+        ),
+      );
+
+      if (maxVolume == 0) {
+        maxVolume = element.volume.toInt();
+      } else {
+        if (element.volume > maxVolume!) {
+          maxVolume = element.volume.toInt();
+        }
+      }
+    }
+  }
+
+  List<KbarData>? arr;
+  num? maxVolume;
 }

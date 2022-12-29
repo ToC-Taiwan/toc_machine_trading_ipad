@@ -5,14 +5,14 @@ import 'package:toc_machine_trading_ipad/entity/entity.dart';
 
 class TradeNotification {
   TradeNotification.reconnectingWS(BuildContext context) {
-    title = AppLocalizations.of(context)!.connection_status;
-    content = AppLocalizations.of(context)!.disconnected_and_reconnecting;
+    title = AppLocalizations.of(context)!.connection;
+    content = AppLocalizations.of(context)!.disconnected;
     color = Colors.red;
     time = DateTime.now().toString();
   }
 
   TradeNotification.connected(BuildContext context) {
-    title = AppLocalizations.of(context)!.connection_status;
+    title = AppLocalizations.of(context)!.connection;
     content = AppLocalizations.of(context)!.connected;
     color = Colors.green;
     time = DateTime.now().toString();

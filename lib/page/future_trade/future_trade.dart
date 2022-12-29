@@ -26,15 +26,15 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   String code = '';
   String delieveryDate = '';
-  List<TradeNotification> notificationList = [];
 
   bool automaticMode = false;
-  bool automationByTimer = false;
   bool automationByBalance = false;
+  bool automationByTimer = false;
   bool isAssiting = false;
 
   int qty = 1;
   int automationType = 0;
+
   num automationByBalanceHigh = 4;
   num automationByBalanceLow = -4;
   num automationByTimePeriod = 10;
@@ -42,17 +42,20 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   double lastRate = 0;
   double rateDifferenceRatio = 0;
+
+  RealTimeFutureTick? lastTick;
   TradeRate tradeRate = TradeRate(0, 0, 0, 0, 0);
 
+  List<TradeNotification> notificationList = [];
   List<RealTimeFutureTick> totalTickArr = [];
   List<RealTimeFutureTick> tickArr = [];
-  RealTimeFutureTick? lastTick;
 
-  Future<RealTimeFutureTick?> realTimeFutureTick = Future.value();
+  List<KbarData> kbarArr = [];
+  int kbarMaxVolume = 0;
+
   Future<FuturePosition?> futurePosition = Future.value();
   Future<TradeIndex?> tradeIndex = Future.value();
   Future<List<RealTimeFutureTick>> realTimeFutureTickArr = Future.value([]);
-  Future<List<KbarData>> kbarArr = Future.value([]);
 
   @override
   void initState() {
@@ -81,9 +84,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
           case pb.WSType.TYPE_FUTURE_TICK:
             updateTradeRate(msg.futureTick, totalTickArr);
             setState(() {
-              realTimeFutureTick = getData(msg.futureTick);
-              realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
               lastTick = RealTimeFutureTick.fromProto(msg.futureTick);
+              if (!automaticMode) {
+                realTimeFutureTickArr = fillArr(msg.futureTick, tickArr);
+              }
             });
             return;
 
@@ -113,7 +117,9 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
           case pb.WSType.TYPE_KBAR_ARR:
             setState(() {
-              kbarArr = getKbarArr(msg.historyKbar);
+              final tmp = KbarArr.fromProto(msg.historyKbar);
+              kbarArr = tmp.arr!;
+              kbarMaxVolume = tmp.maxVolume!.toInt();
             });
             return;
 
@@ -135,7 +141,6 @@ class _FutureTradePageState extends State<FutureTradePage> {
           addNotification(TradeNotification.reconnectingWS(context));
           Future.delayed(const Duration(milliseconds: 1000)).then((value) {
             _channel!.sink.close();
-            tickArr = [];
             tradeRate = TradeRate(0, 0, 0, 0, 0);
             initialWS();
           });
@@ -198,7 +203,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (lastRate > 7.5 && rateDifferenceRatio > 1.75) {
+      if (lastRate > 6 && rateDifferenceRatio > 1.6) {
         if (tradeRate.percent1 > 70) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
@@ -211,26 +216,8 @@ class _FutureTradePageState extends State<FutureTradePage> {
     lastRate = tradeRate.rate;
   }
 
-  Future<RealTimeFutureTick> getData(pb.WSFutureTick ws) async => RealTimeFutureTick.fromProto(ws);
   Future<TradeIndex> updateTradeIndex(pb.WSTradeIndex ws) async => TradeIndex.fromProto(ws);
   Future<FuturePosition> updateFuturePosition(pb.WSFuturePosition ws, String code) async => FuturePosition.fromProto(ws, code);
-  Future<List<KbarData>> getKbarArr(pb.WSHistoryKbarMessage ws) async {
-    final tmp = <KbarData>[];
-    for (final element in ws.arr) {
-      tmp.add(
-        KbarData(
-          kbarTime: DateTime.parse(element.kbarTime),
-          high: element.high,
-          low: element.low,
-          open: element.open,
-          close: element.close,
-          volume: element.volume.toInt(),
-        ),
-      );
-    }
-    return tmp;
-  }
-
   Future<List<RealTimeFutureTick>> fillArr(pb.WSFutureTick wsTick, List<RealTimeFutureTick> originalArr) async {
     final tmp = RealTimeFutureTick.fromProto(wsTick);
     if (originalArr.isNotEmpty && originalArr.last.close == tmp.close && originalArr.last.tickType == tmp.tickType) {
@@ -546,10 +533,11 @@ class _FutureTradePageState extends State<FutureTradePage> {
 
   void addNotification(TradeNotification notification) {
     setState(() {
-      notificationList.insert(0, notification);
-      if (notificationList.length > 4) {
+      final limit = automaticMode ? 8 : 4;
+      if (notificationList.length == limit) {
         notificationList.removeLast();
       }
+      notificationList.insert(0, notification);
     });
   }
 
@@ -562,25 +550,28 @@ class _FutureTradePageState extends State<FutureTradePage> {
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(
-                      child: FutureBuilder<List<RealTimeFutureTick>>(
-                        future: realTimeFutureTickArr,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final arr = <Widget>[];
-                            for (final i in snapshot.data!) {
-                              arr.add(buildTickDetail(i));
+                    if (automaticMode)
+                      Container()
+                    else
+                      Expanded(
+                        child: FutureBuilder<List<RealTimeFutureTick>>(
+                          future: realTimeFutureTickArr,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final arr = <Widget>[];
+                              for (final i in snapshot.data!) {
+                                arr.add(buildTickDetail(i));
+                              }
+                              return Center(
+                                child: Column(
+                                  children: arr,
+                                ),
+                              );
                             }
-                            return Center(
-                              child: Column(
-                                children: arr,
-                              ),
-                            );
-                          }
-                          return Container();
-                        },
+                            return Container();
+                          },
+                        ),
                       ),
-                    ),
                     Expanded(
                       child: Column(
                         children: [
@@ -588,6 +579,10 @@ class _FutureTradePageState extends State<FutureTradePage> {
                           if (notificationList.length > 1) buildNotification(notificationList[1]) else Container(),
                           if (notificationList.length > 2) buildNotification(notificationList[2]) else Container(),
                           if (notificationList.length > 3) buildNotification(notificationList[3]) else Container(),
+                          if (notificationList.length > 4) buildNotification(notificationList[4]) else Container(),
+                          if (notificationList.length > 5) buildNotification(notificationList[5]) else Container(),
+                          if (notificationList.length > 6) buildNotification(notificationList[6]) else Container(),
+                          if (notificationList.length > 7) buildNotification(notificationList[7]) else Container(),
                         ],
                       ),
                     ),
@@ -716,89 +711,77 @@ class _FutureTradePageState extends State<FutureTradePage> {
                               ),
                             ],
                           ),
-                          FutureBuilder<RealTimeFutureTick?>(
-                            future: realTimeFutureTick,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final type = (snapshot.data!.priceChg! == 0)
-                                    ? ''
-                                    : (snapshot.data!.priceChg! > 0)
-                                        ? '↗️'
-                                        : '↘️';
-                                return SizedBox(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              snapshot.data!.close!.toStringAsFixed(0),
-                                              style: GoogleFonts.getFont(
-                                                'Source Code Pro',
-                                                fontStyle: FontStyle.normal,
-                                                fontSize: 50,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              '$type ${snapshot.data!.priceChg!.abs().toStringAsFixed(0)}',
-                                              style: GoogleFonts.getFont(
-                                                'Source Code Pro',
-                                                fontStyle: FontStyle.normal,
-                                                fontSize: 50,
-                                                color: snapshot.data!.priceChg! == 0
-                                                    ? Colors.blueGrey
-                                                    : snapshot.data!.priceChg! > 0
-                                                        ? Colors.red
-                                                        : Colors.green,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Center(
-                                          child: Text(
-                                            '${tradeRate.rate.toStringAsFixed(2)}/s',
-                                            style: GoogleFonts.getFont(
-                                              'Source Code Pro',
-                                              fontStyle: FontStyle.normal,
-                                              fontSize: 35,
-                                              color: tradeRate.rate < 7
-                                                  ? Colors.grey
-                                                  : tradeRate.percent1 > 70
-                                                      ? Colors.red
-                                                      : tradeRate.percent1 < 30
-                                                          ? Colors.green
-                                                          : Colors.yellow,
-                                            ),
+                          if (lastTick == null)
+                            Center(child: Text(AppLocalizations.of(context)!.loading))
+                          else
+                            SizedBox(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          lastTick!.close!.toStringAsFixed(0),
+                                          style: GoogleFonts.getFont(
+                                            'Source Code Pro',
+                                            fontStyle: FontStyle.normal,
+                                            fontSize: 50,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 7,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
-                                            buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
-                                            buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
-                                            buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
-                                          ],
+                                        Text(
+                                          '${lastTick!.changeType} ${lastTick!.priceChg!.abs().toStringAsFixed(0)}',
+                                          style: GoogleFonts.getFont(
+                                            'Source Code Pro',
+                                            fontStyle: FontStyle.normal,
+                                            fontSize: 50,
+                                            color: lastTick!.priceChg! == 0
+                                                ? Colors.blueGrey
+                                                : lastTick!.priceChg! > 0
+                                                    ? Colors.red
+                                                    : Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Center(
+                                      child: Text(
+                                        '${tradeRate.rate.toStringAsFixed(2)}/s',
+                                        style: GoogleFonts.getFont(
+                                          'Source Code Pro',
+                                          fontStyle: FontStyle.normal,
+                                          fontSize: 35,
+                                          color: tradeRate.rate < 7
+                                              ? Colors.grey
+                                              : tradeRate.percent1 > 70
+                                                  ? Colors.red
+                                                  : tradeRate.percent1 < 30
+                                                      ? Colors.green
+                                                      : Colors.orange,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                );
-                              } else {
-                                return Text(AppLocalizations.of(context)!.loading);
-                              }
-                            },
-                          ),
+                                  Expanded(
+                                    flex: 7,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
+                                        buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
+                                        buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
+                                        buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -925,14 +908,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                         });
                                       }
                                     : () {
-                                        _channel!.sink.close();
                                         setState(() {
-                                          tickArr = [];
                                           tradeRate = TradeRate(0, 0, 0, 0, 0);
                                           automaticMode = !automaticMode;
                                           automationByBalance = false;
                                           automationByTimer = false;
+                                          if (notificationList.length > 4) {
+                                            notificationList.length = 4;
+                                          }
                                         });
+                                        _channel!.sink.close();
                                       },
                                 child: SizedBox(
                                   width: 75,
@@ -1011,80 +996,68 @@ class _FutureTradePageState extends State<FutureTradePage> {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: FutureBuilder<List<KbarData>>(
-                        future: kbarArr,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            var maxVolume = 0;
-                            for (final element in snapshot.data!) {
-                              if (maxVolume == 0) {
-                                maxVolume = element.volume!;
-                              } else {
-                                if (element.volume! > maxVolume) {
-                                  maxVolume = element.volume!;
-                                }
-                              }
-                            }
-
-                            return SfCartesianChart(
-                              enableSideBySideSeriesPlacement: false,
-                              plotAreaBorderWidth: 0,
-                              primaryYAxis: NumericAxis(
-                                isVisible: false,
-                              ),
-                              primaryXAxis: DateTimeAxis(
-                                majorGridLines: const MajorGridLines(width: 0),
-                              ),
-                              axes: [
-                                NumericAxis(
-                                  isVisible: false,
-                                  name: 'price',
-                                ),
-                                NumericAxis(
-                                  maximum: maxVolume.toDouble() * 3,
-                                  isVisible: false,
-                                  opposedPosition: true,
-                                  name: 'volume',
-                                ),
-                              ],
-                              series: <ChartSeries>[
-                                ColumnSeries(
-                                  yAxisName: 'volume',
-                                  dataSource: snapshot.data!,
-                                  xValueMapper: (datum, index) => (datum as KbarData).kbarTime,
-                                  yValueMapper: (datum, index) => (datum as KbarData).volume!,
-                                  pointColorMapper: (datum, index) => (datum as KbarData).close! > datum.open! ? Colors.redAccent : Colors.greenAccent,
-                                ),
-                                CandleSeries(
-                                  yAxisName: 'price',
-                                  showIndicationForSameValues: true,
-                                  enableSolidCandles: true,
-                                  bearColor: Colors.green,
-                                  bullColor: Colors.red,
-                                  dataSource: snapshot.data!,
-                                  xValueMapper: (datum, index) => (datum as KbarData).kbarTime,
-                                  lowValueMapper: (datum, index) => (datum as KbarData).low,
-                                  highValueMapper: (datum, index) => (datum as KbarData).high,
-                                  openValueMapper: (datum, index) => (datum as KbarData).open,
-                                  closeValueMapper: (datum, index) => (datum as KbarData).close,
-                                  trendlines: <Trendline>[
-                                    Trendline(
-                                      type: TrendlineType.polynomial,
-                                      dashArray: <double>[5, 5],
-                                    ),
-                                  ],
+                    if (kbarArr.isNotEmpty)
+                      Expanded(
+                        child: SfCartesianChart(
+                          enableSideBySideSeriesPlacement: false,
+                          plotAreaBorderWidth: 0,
+                          primaryYAxis: NumericAxis(
+                            isVisible: false,
+                          ),
+                          primaryXAxis: DateTimeAxis(
+                            majorGridLines: const MajorGridLines(width: 0),
+                          ),
+                          axes: [
+                            NumericAxis(
+                              isVisible: false,
+                              name: 'price',
+                            ),
+                            NumericAxis(
+                              maximum: kbarMaxVolume.toDouble() * 3,
+                              isVisible: false,
+                              opposedPosition: true,
+                              name: 'volume',
+                            ),
+                          ],
+                          series: <ChartSeries>[
+                            ColumnSeries(
+                              yAxisName: 'volume',
+                              dataSource: kbarArr,
+                              xValueMapper: (datum, index) => (datum as KbarData).kbarTime,
+                              yValueMapper: (datum, index) => (datum as KbarData).volume!,
+                              pointColorMapper: (datum, index) => (datum as KbarData).close! > datum.open! ? Colors.redAccent : Colors.greenAccent,
+                            ),
+                            CandleSeries(
+                              yAxisName: 'price',
+                              showIndicationForSameValues: true,
+                              enableSolidCandles: true,
+                              bearColor: Colors.green,
+                              bullColor: Colors.red,
+                              dataSource: kbarArr,
+                              xValueMapper: (datum, index) => (datum as KbarData).kbarTime,
+                              lowValueMapper: (datum, index) => (datum as KbarData).low,
+                              highValueMapper: (datum, index) => (datum as KbarData).high,
+                              openValueMapper: (datum, index) => (datum as KbarData).open,
+                              closeValueMapper: (datum, index) => (datum as KbarData).close,
+                              trendlines: <Trendline>[
+                                Trendline(
+                                  type: TrendlineType.polynomial,
+                                  dashArray: <double>[5, 5],
                                 ),
                               ],
-                            );
-                          }
-                          return Text(
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: Center(
+                          child: Text(
                             AppLocalizations.of(context)!.kbar_is_loading,
                             style: GoogleFonts.getFont('Source Code Pro', fontStyle: FontStyle.normal, fontSize: 15, color: Colors.grey),
-                          );
-                        },
-                      ),
-                    ),
+                          ),
+                        ),
+                      )
                   ],
                 ),
               )
