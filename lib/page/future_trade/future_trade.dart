@@ -36,7 +36,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
   int automationType = 0;
 
   num automationByBalanceHigh = 4;
-  num automationByBalanceLow = -4;
+  num automationByBalanceLow = -5;
   num automationByTimePeriod = 10;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
 

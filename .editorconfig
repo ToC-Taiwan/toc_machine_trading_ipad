@@ -9,7 +9,7 @@ end_of_line = LF
 
 [*.yaml]
 indent_style = tab
-
+indent_size = 2
 
 [*.dart]
 indent_style = space
