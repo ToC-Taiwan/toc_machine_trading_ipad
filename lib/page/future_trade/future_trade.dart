@@ -44,7 +44,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
   double rateDifferenceRatio = 0;
 
   RealTimeFutureTick? lastTick;
-  TradeRate tradeRate = TradeRate(0, 0, 0, 0, 0);
+  TradeRate tradeRate = TradeRate(0, 0);
 
   List<TradeNotification> notificationList = [];
   List<RealTimeFutureTick> totalTickArr = [];
@@ -141,7 +141,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
           addNotification(TradeNotification.reconnectingWS(context));
           Future.delayed(const Duration(milliseconds: 1000)).then((value) {
             _channel!.sink.close();
-            tradeRate = TradeRate(0, 0, 0, 0, 0);
+            tradeRate = TradeRate(0, 0);
             initialWS();
           });
         }
@@ -153,61 +153,33 @@ class _FutureTradePageState extends State<FutureTradePage> {
   void updateTradeRate(pb.WSFutureTick ws, List<RealTimeFutureTick> totalArr) {
     totalTickArr.add(RealTimeFutureTick.fromProto(ws));
 
-    const baseDuration = Duration(seconds: 10);
-    final firstPeriod = RealTimeFutureTickArr();
-    final secondPeriod = RealTimeFutureTickArr();
-    final thirdPeriod = RealTimeFutureTickArr();
-    final fourthPeriod = RealTimeFutureTickArr();
-
+    const baseDuration = Duration(seconds: 15);
+    final period = RealTimeFutureTickArr();
     final startTime = totalTickArr[totalTickArr.length - 1].tickTime;
     for (var i = 0; i < totalTickArr.length; i++) {
-      if (totalTickArr[i].tickTime!.isBefore(startTime!.subtract(baseDuration * 4))) {
+      if (totalTickArr[i].tickTime!.isBefore(startTime!.subtract(baseDuration))) {
         totalTickArr.removeAt(i);
         continue;
       }
-
-      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 3))) {
-        fourthPeriod.arr.add(totalTickArr[i]);
-        continue;
-      }
-
-      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 2))) {
-        thirdPeriod.arr.add(totalTickArr[i]);
-        fourthPeriod.arr.add(totalTickArr[i]);
-        continue;
-      }
-
-      if (totalTickArr[i].tickTime!.isBefore(startTime.subtract(baseDuration * 1))) {
-        secondPeriod.arr.add(totalTickArr[i]);
-        thirdPeriod.arr.add(totalTickArr[i]);
-        fourthPeriod.arr.add(totalTickArr[i]);
-        continue;
-      }
-
-      firstPeriod.arr.add(totalTickArr[i]);
-      secondPeriod.arr.add(totalTickArr[i]);
-      thirdPeriod.arr.add(totalTickArr[i]);
-      fourthPeriod.arr.add(totalTickArr[i]);
+      period.arr.add(totalTickArr[i]);
     }
+    final periodVolume = period.getOutInVolume();
 
     setState(() {
       tradeRate = TradeRate(
-        firstPeriod.getOutInVolume().getOutInRatio(),
-        secondPeriod.getOutInVolume().getOutInRatio(),
-        thirdPeriod.getOutInVolume().getOutInRatio(),
-        fourthPeriod.getOutInVolume().getOutInRatio(),
-        firstPeriod.getOutInVolume().getRate(),
+        periodVolume.getOutInRatio(),
+        periodVolume.getRate(),
       );
       rateDifferenceRatio = tradeRate.rate / lastRate;
       // log('rate: ${tradeRate.rate.toString()}, diff_ratio: ${rateDifferenceRatio.toStringAsFixed(2)}');
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (lastRate > 7.5 && rateDifferenceRatio > 1.6) {
-        if (tradeRate.percent1 > 70) {
+      if (lastRate > 6 && rateDifferenceRatio > 1.5) {
+        if (tradeRate.outInRatio > 65) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-        } else if (tradeRate.percent1 < 30) {
+        } else if (tradeRate.outInRatio < 35) {
           _sellFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
         }
@@ -748,35 +720,30 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                     ),
                                   ),
                                   Expanded(
+                                    flex: 7,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 20),
+                                      child: buildVolumeRatioBar(tradeRate.outInRatio, tradeRate.rate),
+                                    ),
+                                  ),
+                                  Expanded(
                                     flex: 3,
                                     child: Center(
                                       child: Text(
-                                        '${tradeRate.rate.toStringAsFixed(2)}/s',
+                                        '${tradeRate.rate.toStringAsFixed(1)}/s',
                                         style: GoogleFonts.getFont(
                                           'Source Code Pro',
                                           fontStyle: FontStyle.normal,
                                           fontSize: 35,
                                           color: tradeRate.rate < 7
                                               ? Colors.grey
-                                              : tradeRate.percent1 > 70
+                                              : tradeRate.outInRatio > 70
                                                   ? Colors.red
-                                                  : tradeRate.percent1 < 30
+                                                  : tradeRate.outInRatio < 30
                                                       ? Colors.green
                                                       : Colors.orange,
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 7,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        buildVolumeRatioCircle(tradeRate.percent1, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent2, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent3, tradeRate.rate),
-                                        buildVolumeRatioCircle(tradeRate.percent4, tradeRate.rate),
-                                      ],
                                     ),
                                   ),
                                 ],
@@ -909,7 +876,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
                                       }
                                     : () {
                                         setState(() {
-                                          tradeRate = TradeRate(0, 0, 0, 0, 0);
+                                          tradeRate = TradeRate(0, 0);
                                           automaticMode = !automaticMode;
                                           automationByBalance = false;
                                           automationByTimer = false;

@@ -58,5 +58,10 @@
         "build_date": "2023-01-03 23:11:53",
         "version": "1.0.3",
         "build_number": 10009
+    },
+    {
+        "build_date": "2023-01-07 01:04:54",
+        "version": "1.0.3",
+        "build_number": 10010
     }
 ]

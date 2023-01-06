@@ -132,17 +132,11 @@ class OutInVolume {
 
 class TradeRate {
   TradeRate(
-    this.percent1,
-    this.percent2,
-    this.percent3,
-    this.percent4,
+    this.outInRatio,
     this.rate,
   );
 
-  double percent1;
-  double percent2;
-  double percent3;
-  double percent4;
+  double outInRatio;
   double rate;
 }
 

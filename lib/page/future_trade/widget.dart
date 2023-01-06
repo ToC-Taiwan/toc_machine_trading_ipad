@@ -29,6 +29,51 @@ Widget buildVolumeRatioCircle(double percent, double rate) => CircularPercentInd
                   : Colors.yellow,
     );
 
+Widget buildVolumeRatioBar(double outInRation, double rate) => Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        LinearPercentIndicator(
+          animateFromLastPercent: true,
+          animation: true,
+          percent: outInRation / 100,
+          center: Text(
+            '${outInRation.toStringAsFixed(0)}%',
+            style: GoogleFonts.getFont(
+              'Source Code Pro',
+              fontStyle: FontStyle.normal,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+          width: 385,
+          lineHeight: 40,
+          barRadius: const Radius.circular(10),
+          progressColor: Colors.red,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        LinearPercentIndicator(
+          animateFromLastPercent: true,
+          animation: true,
+          percent: (100 - outInRation) / 100,
+          center: Text(
+            '${(100 - outInRation).toStringAsFixed(0)}%',
+            style: GoogleFonts.getFont(
+              'Source Code Pro',
+              fontStyle: FontStyle.normal,
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+          width: 385,
+          lineHeight: 40,
+          barRadius: const Radius.circular(10),
+          progressColor: Colors.green,
+        ),
+      ],
+    );
+
 Widget buildIndexRow(BuildContext context, String name, num priceChg, num breakCount) => Row(
       children: [
         Expanded(
