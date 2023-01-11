@@ -35,16 +35,16 @@ class _FutureTradePageState extends State<FutureTradePage> {
   int qty = 1;
   int automationType = 0;
 
-  num automationByBalanceHigh = 4;
-  num automationByBalanceLow = -5;
+  num automationByBalanceHigh = 3;
+  num automationByBalanceLow = -4;
   num automationByTimePeriod = 10;
   num placeOrderTime = DateTime.now().millisecondsSinceEpoch;
 
-  double lastRate = 0;
-  double rateDifferenceRatio = 0;
-
   RealTimeFutureTick? lastTick;
+
   TradeRate tradeRate = TradeRate(0, 0);
+  TradeRate lastRate = TradeRate(0, 0);
+  // double rateDifferenceRatio = 0;
 
   List<TradeNotification> notificationList = [];
   List<RealTimeFutureTick> totalTickArr = [];
@@ -153,7 +153,8 @@ class _FutureTradePageState extends State<FutureTradePage> {
   void updateTradeRate(pb.WSFutureTick ws, List<RealTimeFutureTick> totalArr) {
     totalTickArr.add(RealTimeFutureTick.fromProto(ws));
 
-    const baseDuration = Duration(seconds: 15);
+    const timeUnit = 10.0;
+    final baseDuration = Duration(seconds: timeUnit.toInt());
     final period = RealTimeFutureTickArr();
     final startTime = totalTickArr[totalTickArr.length - 1].tickTime;
     for (var i = 0; i < totalTickArr.length; i++) {
@@ -168,24 +169,23 @@ class _FutureTradePageState extends State<FutureTradePage> {
     setState(() {
       tradeRate = TradeRate(
         periodVolume.getOutInRatio(),
-        periodVolume.getRate(),
+        periodVolume.getRate(timeUnit),
       );
-      rateDifferenceRatio = tradeRate.rate / lastRate;
       // log('rate: ${tradeRate.rate.toString()}, diff_ratio: ${rateDifferenceRatio.toStringAsFixed(2)}');
     });
 
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (lastRate > 10 && rateDifferenceRatio > 1.4) {
-        if (tradeRate.outInRatio > 65) {
+      if (lastRate.rate > 10 && tradeRate.rate / lastRate.rate > 1.3) {
+        if (tradeRate.outInRatio > 70 && lastRate.outInRatio < 50) {
           _buyFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-        } else if (tradeRate.outInRatio < 35) {
+        } else if (tradeRate.outInRatio < 30 && lastRate.outInRatio > 50) {
           _sellFuture(code, lastTick!.close!);
           placeOrderTime = DateTime.now().millisecondsSinceEpoch;
         }
       }
     }
-    lastRate = tradeRate.rate;
+    lastRate = tradeRate;
   }
 
   Future<TradeIndex> updateTradeIndex(pb.WSTradeIndex ws) async => TradeIndex.fromProto(ws);

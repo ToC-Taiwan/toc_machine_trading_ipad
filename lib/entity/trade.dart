@@ -124,7 +124,7 @@ class OutInVolume {
     return 100 * (outVolume! / (outVolume! + inVolume!));
   }
 
-  double getRate() => (outVolume! + inVolume!) / 10;
+  double getRate(double timeUnit) => (outVolume! + inVolume!) / timeUnit;
 
   num? outVolume;
   num? inVolume;
