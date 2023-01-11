@@ -174,18 +174,21 @@ class _FutureTradePageState extends State<FutureTradePage> {
       // log('rate: ${tradeRate.rate.toString()}, diff_ratio: ${rateDifferenceRatio.toStringAsFixed(2)}');
     });
 
+    final changeRatio = lastRate.rate / lastRate.rate;
+    final lastTradeRate = lastRate.rate;
+    lastRate = tradeRate;
+
     if (!isAssiting && automaticMode && (automationByBalance || automationByTimer) && DateTime.now().millisecondsSinceEpoch - placeOrderTime > 30000) {
-      if (lastRate.rate > 10 && tradeRate.rate / lastRate.rate > 1.3) {
-        if (tradeRate.outInRatio > 70 && lastRate.outInRatio < 50) {
-          _buyFuture(code, lastTick!.close!);
-          placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-        } else if (tradeRate.outInRatio < 30 && lastRate.outInRatio > 50) {
-          _sellFuture(code, lastTick!.close!);
-          placeOrderTime = DateTime.now().millisecondsSinceEpoch;
-        }
+      if (changeRatio < 1.4 || lastTradeRate < 8) {
+        return;
+      }
+
+      if (tradeRate.outInRatio > 80) {
+        _buyFuture(code, lastTick!.close!);
+      } else if (tradeRate.outInRatio < 20) {
+        _sellFuture(code, lastTick!.close!);
       }
     }
-    lastRate = tradeRate;
   }
 
   Future<TradeIndex> updateTradeIndex(pb.WSTradeIndex ws) async => TradeIndex.fromProto(ws);
@@ -235,6 +238,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
         },
       ),
     );
+    placeOrderTime = DateTime.now().millisecondsSinceEpoch;
   }
 
   void _sellFuture(String code, num close) {
@@ -267,6 +271,7 @@ class _FutureTradePageState extends State<FutureTradePage> {
         },
       ),
     );
+    placeOrderTime = DateTime.now().millisecondsSinceEpoch;
   }
 
   void _showByBalanceSetting() {
