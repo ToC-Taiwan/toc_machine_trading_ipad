@@ -99,14 +99,11 @@ const WSOrder$json = const {
     const {'1': 'action', '3': 4, '4': 1, '5': 3, '10': 'action'},
     const {'1': 'price', '3': 5, '4': 1, '5': 1, '10': 'price'},
     const {'1': 'quantity', '3': 6, '4': 1, '5': 3, '10': 'quantity'},
-    const {'1': 'trade_time', '3': 7, '4': 1, '5': 9, '10': 'tradeTime'},
-    const {'1': 'tick_time', '3': 8, '4': 1, '5': 9, '10': 'tickTime'},
-    const {'1': 'group_id', '3': 9, '4': 1, '5': 9, '10': 'groupId'},
   ],
 };
 
 /// Descriptor for `WSOrder`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List wSOrderDescriptor = $convert.base64Decode('CgdXU09yZGVyEhkKCG9yZGVyX2lkGAEgASgJUgdvcmRlcklkEhYKBnN0YXR1cxgCIAEoA1IGc3RhdHVzEh0KCm9yZGVyX3RpbWUYAyABKAlSCW9yZGVyVGltZRIWCgZhY3Rpb24YBCABKANSBmFjdGlvbhIUCgVwcmljZRgFIAEoAVIFcHJpY2USGgoIcXVhbnRpdHkYBiABKANSCHF1YW50aXR5Eh0KCnRyYWRlX3RpbWUYByABKAlSCXRyYWRlVGltZRIbCgl0aWNrX3RpbWUYCCABKAlSCHRpY2tUaW1lEhkKCGdyb3VwX2lkGAkgASgJUgdncm91cElk');
+final $typed_data.Uint8List wSOrderDescriptor = $convert.base64Decode('CgdXU09yZGVyEhkKCG9yZGVyX2lkGAEgASgJUgdvcmRlcklkEhYKBnN0YXR1cxgCIAEoA1IGc3RhdHVzEh0KCm9yZGVyX3RpbWUYAyABKAlSCW9yZGVyVGltZRIWCgZhY3Rpb24YBCABKANSBmFjdGlvbhIUCgVwcmljZRgFIAEoAVIFcHJpY2USGgoIcXVhbnRpdHkYBiABKANSCHF1YW50aXR5');
 @$core.Deprecated('Use wSFutureTickDescriptor instead')
 const WSFutureTick$json = const {
   '1': 'WSFutureTick',

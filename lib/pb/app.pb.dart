@@ -549,9 +549,6 @@ class WSOrder extends $pb.GeneratedMessage {
     ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'action')
     ..a<$core.double>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'price', $pb.PbFieldType.OD)
     ..aInt64(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'quantity')
-    ..aOS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'tradeTime')
-    ..aOS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'tickTime')
-    ..aOS(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'groupId')
     ..hasRequiredFields = false
   ;
 
@@ -563,9 +560,6 @@ class WSOrder extends $pb.GeneratedMessage {
     $fixnum.Int64? action,
     $core.double? price,
     $fixnum.Int64? quantity,
-    $core.String? tradeTime,
-    $core.String? tickTime,
-    $core.String? groupId,
   }) {
     final _result = create();
     if (orderId != null) {
@@ -585,15 +579,6 @@ class WSOrder extends $pb.GeneratedMessage {
     }
     if (quantity != null) {
       _result.quantity = quantity;
-    }
-    if (tradeTime != null) {
-      _result.tradeTime = tradeTime;
-    }
-    if (tickTime != null) {
-      _result.tickTime = tickTime;
-    }
-    if (groupId != null) {
-      _result.groupId = groupId;
     }
     return _result;
   }
@@ -671,33 +656,6 @@ class WSOrder extends $pb.GeneratedMessage {
   $core.bool hasQuantity() => $_has(5);
   @$pb.TagNumber(6)
   void clearQuantity() => clearField(6);
-
-  @$pb.TagNumber(7)
-  $core.String get tradeTime => $_getSZ(6);
-  @$pb.TagNumber(7)
-  set tradeTime($core.String v) { $_setString(6, v); }
-  @$pb.TagNumber(7)
-  $core.bool hasTradeTime() => $_has(6);
-  @$pb.TagNumber(7)
-  void clearTradeTime() => clearField(7);
-
-  @$pb.TagNumber(8)
-  $core.String get tickTime => $_getSZ(7);
-  @$pb.TagNumber(8)
-  set tickTime($core.String v) { $_setString(7, v); }
-  @$pb.TagNumber(8)
-  $core.bool hasTickTime() => $_has(7);
-  @$pb.TagNumber(8)
-  void clearTickTime() => clearField(8);
-
-  @$pb.TagNumber(9)
-  $core.String get groupId => $_getSZ(8);
-  @$pb.TagNumber(9)
-  set groupId($core.String v) { $_setString(8, v); }
-  @$pb.TagNumber(9)
-  $core.bool hasGroupId() => $_has(8);
-  @$pb.TagNumber(9)
-  void clearGroupId() => clearField(9);
 }
 
 class WSFutureTick extends $pb.GeneratedMessage {

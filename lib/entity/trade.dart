@@ -212,9 +212,6 @@ class BaseOrder {
     this.action,
     this.price,
     this.quantity,
-    this.tradeTime,
-    this.tickTime,
-    this.groupID,
   );
 
   BaseOrder.fromProto(pb.WSOrder ws) {
@@ -224,9 +221,6 @@ class BaseOrder {
     action = ws.action.toInt();
     price = ws.price;
     quantity = ws.quantity.toInt();
-    tradeTime = ws.tradeTime;
-    tickTime = ws.tickTime;
-    groupID = ws.groupId;
   }
 
   String? orderID;
@@ -235,9 +229,6 @@ class BaseOrder {
   num? action;
   num? price;
   num? quantity;
-  String? tradeTime;
-  String? tickTime;
-  String? groupID;
 }
 
 class KbarData {
